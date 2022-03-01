@@ -45,7 +45,7 @@ public class MailController {
 			String tablaprevia="";
 			//ultimas 1o zonas
 				tablaprevia=tablaprevia+"<tr>";
-				tablaprevia=tablaprevia+"<td>"+"ClientID"+"</td>";
+				tablaprevia=tablaprevia+"<td>"+"DeviceID"+"</td>";
 				tablaprevia=tablaprevia+"<td>"+newDeviceId+"</td>";
 				tablaprevia=tablaprevia+"</tr>";
 				tablaprevia=tablaprevia+"<tr>";

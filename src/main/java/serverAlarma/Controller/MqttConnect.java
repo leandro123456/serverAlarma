@@ -98,18 +98,13 @@ public class MqttConnect implements MqttCallback{
 
 	@Override
 	public void messageArrived(String topic, MqttMessage message) throws Exception {
-		try {
-			System.out.println("Topico: "+topic);    
+		try {   
 			if(!topic.contains("/response")) {
-				String valor = new String(message.getPayload());
-				System.out.println("Valor conseguido: "+ valor);
-				//guardar usuario
 				String msj= new String(message.getPayload());
 				JSONObject json= new JSONObject(msj);
 				String email= json.get("mail").toString();
-				String passCuenta= json.get("pass").toString();
-				passCuenta=new String(Base64.getEncoder().encode(passCuenta.getBytes()));
-				System.out.println("===========mail: "+ email);
+				String passCuent= json.get("pass").toString();
+				String passCuenta=new String(Base64.getEncoder().encode(passCuent.getBytes()));
 				UserAlarm user= userdao.retrieveByMail(email);
 				if(user==null) {
 					user= new UserAlarm();
@@ -144,23 +139,12 @@ public class MqttConnect implements MqttCallback{
 					user.setMqttPassword(mqttPass);
 					userdao.create(user);
 
-
-					
 					//enviar mensaje por mail
 					try {
 						MailController.enviarNotificacion(newDeviceId,mqttPass,email);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-					
-//					try { 
-//						System.out.println("espera: "+ new Date().toString());
-//						Thread.sleep(3000);
-//						System.out.println("termino espera: "+ new Date().toString());
-//		            } catch (Exception e) {
-//		                e.printStackTrace(); 
-//		                System.out.println("Thread Interrupted");
-//		            }
 					
 					//enviar mensaje mqtt
 					String clientIDRecibed=topic.replace("Deviceconfig/", "");
@@ -175,15 +159,69 @@ public class MqttConnect implements MqttCallback{
 					UploadUserInMosquitto(newDeviceId,mqttPass);
 				}
 				else {
-					System.out.println("El usuario ya existe - reenvio las credenciales a la placa");
-					//enviar mensaje mqtt
-					String clientIDRecibed=topic.replace("Deviceconfig/", "");
-					sendResponseMQTT(clientIDRecibed,user.getDeviceId(),user.getMqttPassword());
-					System.out.println("-------------------------------------------------");
-					System.out.println("-------------------------------------------------");
-					System.out.println("Envio la respuesta via MQTT");
-					System.out.println("-------------------------------------------------");
-					System.out.println("-------------------------------------------------");
+					System.out.println("El usuario ya existe - verifico el password");
+					if(user.getPassCuenta().equals(passCuenta)) {
+						UserAlarm user1= new UserAlarm();
+						user1.setEmail(email);
+						user1.setPassCuenta(passCuenta);
+						user1.setFechaCreacion(new Date().toString());
+
+						Device device=devicedao.retrieveFirst();
+						if(device==null) {
+							device=new Device();
+							device.setName("primero");
+							device.setSerialnumber("Coiaca-DSC010000000100");
+							device.setUserowner("usuario-inicial");
+							devicedao.create(device);
+						}
+						Integer number= Integer.parseInt(device.getSerialnumber().substring(13, device.getSerialnumber().length()));
+						String newDeviceId= (number+1)+"";
+						newDeviceId=device.getSerialnumber().substring(0,device.getSerialnumber().length()-newDeviceId.length())+newDeviceId;
+						System.out.println("New Device id: "+newDeviceId);
+						device.setSerialnumber(newDeviceId);
+						devicedao.update(device);
+
+						user1.setDeviceId(newDeviceId);
+						user1.setMqttUser(newDeviceId);
+						Random rand = new Random();
+						int myRandomNumber = rand.nextInt(10000);
+						String result = Integer.toHexString(myRandomNumber);
+						String mqttPass=new String(Base64.getEncoder().encode(("random"+result).getBytes()));
+						mqttPass=mqttPass.replaceAll("=", "R");
+						user1.setMqttPassword(mqttPass);
+						userdao.create(user1);
+
+						//enviar mensaje por mail
+						try {
+							MailController.enviarNotificacion(newDeviceId,mqttPass,email);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						
+						//enviar mensaje mqtt
+						String clientIDRecibed=topic.replace("Deviceconfig/", "");
+						sendResponseMQTT(clientIDRecibed,newDeviceId,mqttPass);
+						System.out.println("Envio la respuesta via MQTT");
+						
+						//cargar usuario en mosquitto
+						UploadUserInMosquitto(newDeviceId,mqttPass);
+					}else {
+						System.out.println("Las password no coincide con lo esperado");
+						//devolver el error por mail para el mail
+						try {
+							//enviar mensaje mqtt
+							String clientIDRecibed=topic.replace("Deviceconfig/", "");
+							sendResponseMQTT(clientIDRecibed,"wrong-password");
+							System.out.println("Envio la respuesta via MQTT");
+							
+							String mensaje= "The email address is already registered on the platform.... Error in the password sent, it does not match the registered password: "+passCuent;
+							MailController.sendMail(mensaje,email);
+							
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -283,6 +321,40 @@ public class MqttConnect implements MqttCallback{
 				String val=json.toString();
 					MqttMessage msg = makemqttmessageString(val);
 					msg.setQos(1);
+					msg.setRetained(false);
+					publisher.publish(topico,msg); 
+					TimeUnit.SECONDS.sleep(3);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void sendResponseMQTT(String clientIDRecibed,String message) {
+		try {
+			String publisherId = UUID.randomUUID().toString();
+			IMqttClient publisher = new MqttClient(Settings.getInstance().getUriBroker(),publisherId,new MemoryPersistence());
+			MqttConnectOptions options = new MqttConnectOptions();
+			options.setAutomaticReconnect(true);
+			options.setCleanSession(true);
+			options.setConnectionTimeout(10);
+			options.setUserName(Settings.getInstance().getUserNameBroker());
+			options.setPassword(Settings.getInstance().getPasswordBroker().toCharArray());
+			publisher.connect(options);		
+			if ( !publisher.isConnected()) {
+				System.err.println("Fallo la conexion al enviar la RESPUETA - reconectando");
+				iniciar();
+			}
+			String topico="Deviceconfig/"+clientIDRecibed+"/response";
+			try {
+				JSONObject json= new JSONObject();
+				json.put("clt", message);
+				json.put("mqttpdw", "");
+				String val=json.toString();
+					MqttMessage msg = makemqttmessageString(val);
+					msg.setQos(0);
 					msg.setRetained(false);
 					publisher.publish(topico,msg); 
 					TimeUnit.SECONDS.sleep(3);
