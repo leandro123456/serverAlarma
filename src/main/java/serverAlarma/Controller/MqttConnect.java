@@ -26,6 +26,7 @@ import com.jcraft.jsch.Session;
 
 import serverAlarma.util.Settings;
 import serverAlarma.util.Utils;
+import serverAlarma.Configuration.HomeAssistanConfig;
 import serverAlarma.Persistence.DAO.DeviceDAO;
 import serverAlarma.Persistence.DAO.UserDAO;
 import serverAlarma.Persistence.Model.Device;
@@ -100,8 +101,8 @@ public class MqttConnect implements MqttCallback{
 
 	@Override
 	public void messageArrived(String topic, MqttMessage message) throws Exception {
-		try {   
-			if(!topic.contains("/response")) {
+		try {
+			if(!topic.contains("/response") && !topic.contains("homeassistant")) {
 				String msj= new String(message.getPayload());
 				JSONObject json= new JSONObject(msj);
 				String email= json.get("mail").toString();
@@ -139,12 +140,12 @@ public class MqttConnect implements MqttCallback{
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-					
+
 					//enviar mensaje mqtt
 					String clientIDRecibed=topic.replace("Deviceconfig/", "");
 					sendResponseMQTT(clientIDRecibed,newDeviceId,userID,mqttUser,mqttPass);
 					System.out.println("Envio la respuesta via MQTT");
-					
+
 					//implementacion para HomeAssistant
 					if(false) {//needConfigHA
 						System.out.println("Entro en config de HA");
@@ -156,7 +157,7 @@ public class MqttConnect implements MqttCallback{
 					Utils.CreateUserInMosquittoDB(newDeviceId,mqttUser,mqttPass);
 					//Utils.UploadUserInMosquitto(mqttUser,mqttPass);
 					System.out.println("Actualizo Mosquitto");
-					
+
 				}
 				else {
 					System.out.println("El usuario ya existe - verifico el password");
@@ -177,14 +178,14 @@ public class MqttConnect implements MqttCallback{
 							String clientIDRecibed=topic.replace("Deviceconfig/", "");
 							sendResponseMQTT(clientIDRecibed,newDeviceId,user.getUserID(),user.getMqttUser(),user.getMqttPassword());
 							System.out.println("Envio la respuesta via MQTT");
-							
+
 							//implementacion para HomeAssistant
 							if(false) {//needConfigHA
 								ResponseMQTTHomeAssistant.sendResponseMQTTHA(clientIDRecibed,newDeviceId,user.getUserID(),user.getMqttUser(),user.getMqttPassword(),type);
 								System.out.println("Envio la respuesta via MQTT");
 							}
 							Utils.CreateACL(user.getMqttUser(),newDeviceId);
-							
+
 						}else {
 							//si el dispositivo ya existia
 							//enviar mensaje mqtt
@@ -200,15 +201,18 @@ public class MqttConnect implements MqttCallback{
 							String clientIDRecibed=topic.replace("Deviceconfig/", "");
 							sendResponseMQTT(clientIDRecibed,"wrong-password","","","");
 							System.out.println("Envio la respuesta via MQTT");
-							
+
 							String mensaje= "The email address is already registered on the platform.... Error in the password sent, it does not match the registered password: "+passCuent;
 							MailController.sendMail(mensaje,email);
-							
+
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					}
 				}
+			}
+			else if (topic.contains("homeassistant")) {
+				HomeAssistanConfig.addConfig(topic,message);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

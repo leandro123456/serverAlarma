@@ -33,6 +33,7 @@ public class Application {
 			if(client !=null) {
 				System.out.println("esta conectada: "+ client.isConnected());
 				client.subscribe("Deviceconfig/#");
+				client.subscribe("homeassistant/#");
 				System.out.println("Me suscribi a todos los topicos de alta de usuarios");
 			}
 			else

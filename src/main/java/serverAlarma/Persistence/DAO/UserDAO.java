@@ -29,7 +29,7 @@ public class UserDAO extends MongoDBClient<UserAlarm>{
 	}
 	
 	public UserAlarm retrieveDeviceId(String deviceId) {
-		Bson filter = eq("deviceId", deviceId);
+		Bson filter = eq("deviceIds", deviceId);
 		return this.retrieveByFilter(filter);
 	}
 	

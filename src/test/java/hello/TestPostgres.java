@@ -68,7 +68,7 @@ public class TestPostgres {
 	      System.out.println("Operation done successfully");
 	}
 	
-	@Test
+	//@Test
 	public void testInsertPostgres() {
 		String host ="127.0.0.1";
 //		acl.setUsername("nuevo");
