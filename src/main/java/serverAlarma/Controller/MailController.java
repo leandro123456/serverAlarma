@@ -14,7 +14,7 @@ import javax.mail.internet.MimeMessage;
 
 public class MailController {
 
-	public static void enviarNotificacion(String newDeviceId,String mqttPAss,String email) {
+	public static void enviarNotificacion(String userOwner,String newDeviceId,String mqttUser,String mqttPAss,String email) {
 		try {
 			//armado del mail
 			String cabecera = "<HTML><head>\n" + 
@@ -50,11 +50,15 @@ public class MailController {
 				tablaprevia=tablaprevia+"</tr>";
 				tablaprevia=tablaprevia+"<tr>";
 				tablaprevia=tablaprevia+"<td>"+"UserMQTT"+"</td>";
-				tablaprevia=tablaprevia+"<td>"+newDeviceId+"</td>";
+				tablaprevia=tablaprevia+"<td>"+mqttUser+"</td>";
 				tablaprevia=tablaprevia+"</tr>";
 				tablaprevia=tablaprevia+"<tr>";
 				tablaprevia=tablaprevia+"<td>"+"PasswordMQTT"+"</td>";
 				tablaprevia=tablaprevia+"<td>"+mqttPAss+"</td>";
+				tablaprevia=tablaprevia+"</tr>";
+				tablaprevia=tablaprevia+"<tr>";
+				tablaprevia=tablaprevia+"<td>"+"HomeAssistant Config"+"</td>";
+				tablaprevia=tablaprevia+"<td>"+userOwner+"</td>";
 				tablaprevia=tablaprevia+"</tr>";
 			
 			String body= "<h1>Welcome to COAICA DSC Alarm </h1> <br/> "

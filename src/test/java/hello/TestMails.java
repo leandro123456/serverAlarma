@@ -24,6 +24,15 @@ import serverAlarma.Controller.MailController;
 public class TestMails {
 	
 	//@Test
+	public void parseoDeMensaje() {
+		String NdvHATypDvid= "1-1-DSC01-DSC010001022202";
+		String[] a = NdvHATypDvid.split("-");
+		for(int i=0;i<a.length;i++) 
+			System.out.println(a[i]);
+		
+	}
+	
+	//@Test
 	public void TestCreateUserMosquitto() {
 		System.out.println("Start save New user");
 		Boolean wasOk=false;

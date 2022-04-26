@@ -14,9 +14,20 @@ public class Device extends MongoDBObject{
 	private String name;
 	private String userowner;
 	private String serialnumber;
+	private String type;
 
 	
 	public Device() {
+	}
+
+
+	public String getType() {
+		return type;
+	}
+
+
+	public void setType(String type) {
+		this.type = type;
 	}
 
 

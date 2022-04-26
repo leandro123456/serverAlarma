@@ -1,5 +1,8 @@
 package serverAlarma.Persistence.Model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import serverAlarma.Persistence.Mongo.MongoDBObject;
 
 
@@ -16,7 +19,7 @@ public class UserAlarm extends MongoDBObject{
 	private String lastname;
 	private String password;
 	private String email;
-	private String deviceId;
+	private List<String> deviceIds;
 	private String passCuenta;
 	private Boolean cuenta_iniciada;
 	private String role;
@@ -25,7 +28,18 @@ public class UserAlarm extends MongoDBObject{
 	private Integer ingresosSinLogin;
 	private String mqttUser;
 	private String mqttPassword;
+	private String userID;
 
+
+
+	public String getUserID() {
+		return userID;
+	}
+
+
+	public void setUserID(String userID) {
+		this.userID = userID;
+	}
 
 
 	public String getMqttUser() {
@@ -150,14 +164,15 @@ public class UserAlarm extends MongoDBObject{
 	}
 
 
-	public String getDeviceId() {
-		return deviceId;
+	public List<String> getDeviceIds() {
+		if(deviceIds==null)
+			deviceIds=new ArrayList<>();
+		return deviceIds;
 	}
 
 
-	public void setDeviceId(String deviceId) {
-		this.deviceId = deviceId;
+	public void setDeviceIds(List<String> deviceIds) {
+		this.deviceIds = deviceIds;
 	}
-	
 
 }

@@ -10,9 +10,10 @@ public class Settings {
 	private String uriBroker;
 	private String userNameBroker;
 	private String passwordBroker;
-	private String mqttURI;
-	private String mqttPort;
-	private String mqttIsSecure;
+	private String mqttDBurl;
+	private String mqttDBName;
+	private String mqttDBUser;
+	private String mqttDBPass;
 
 
 	private Settings() {
@@ -34,14 +35,31 @@ public class Settings {
             this.uriBroker = properties.getProperty("uriBroker");
             this.userNameBroker = properties.getProperty("userNameBroker");
             this.passwordBroker = properties.getProperty("passwordBroker");
-            this.mqttURI = properties.getProperty("mqttURI");
-            this.mqttPort = properties.getProperty("mqttPort");
-            this.mqttIsSecure = properties.getProperty("mqttIsSecure"); 
+            this.mqttDBurl = properties.getProperty("mqttDBurl");
+            this.mqttDBName = properties.getProperty("mqttDBName");
+            this.mqttDBUser = properties.getProperty("mqttDBUser");
+            this.mqttDBPass = properties.getProperty("mqttDBPass");
         } catch (Exception e) {
         	System.out.println("Error... no se puede leer el archivo de propiedades");
             e.printStackTrace();
         }
     }
+
+	public String getMqttDBurl() {
+		return mqttDBurl;
+	}
+
+	public String getMqttDBName() {
+		return mqttDBName;
+	}
+
+	public String getMqttDBUser() {
+		return mqttDBUser;
+	}
+
+	public String getMqttDBPass() {
+		return mqttDBPass;
+	}
 
 	public String getUriBroker() {
 		return uriBroker;
@@ -55,17 +73,17 @@ public class Settings {
 		return passwordBroker;
 	}
 
-	public String getMqttURI() {
-		return mqttURI;
-	}
+//	public String getMqttURI() {
+//		return mqttURI;
+//	}
 
-	public String getMqttPort() {
-		return mqttPort;
-	}
+//	public String getMqttPort() {
+//		return mqttPort;
+//	}
 
-	public String getMqttIsSecure() {
-		return mqttIsSecure;
-	}   
+//	public String getMqttIsSecure() {
+//		return mqttIsSecure;
+//	}   
 	
 }
 
