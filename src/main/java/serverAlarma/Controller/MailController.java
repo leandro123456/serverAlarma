@@ -65,20 +65,20 @@ public class MailController {
 					+ "<p>Thanks for registering your Coiaca BRDSC01 device. You will find below credentials and information that will allow you to use all features and services.</p> "
 					+ "<table >\n" + 
 					"  <tr>\n" + 
-					"    <th>Field</th>\n" + 
+					"    <th>Parameter</th>\n" + 
 					"    <th>Value</th> \n" + 
 					"  </tr>\n" + tablaprevia+ 
 					"</table>"
 					+ "<br/>"//;
 					//+ "<p> </p>"
 					+ "<h3>What these parameters are and why do you need them.</h3>"
-			+"<h5>DeviceID</h5><p>Unique identification of your device.</p>"
-			+"<h5>Coiaca MQTT broker username and password</h5><p>These credentials are the ones your device uses "
+			+"<p><b>DeviceID: </b>Unique identification of your device.</p>"
+			+"<p><b>Coiaca MQTT broker username and password: </b>These credentials are the ones your device uses "
 			+ "to connect to Coiaca MQTT broker and also can be used with any other a"
 			+ "pplication that you may want to use to control your device with, using Coiaca MQTT broker.</p>"+
 			"<p>If you don't want to use Coiaca MQTT broker, you must replace these credentials with the other broker's. "
 			+ "And in that case, you will also need to configure the broker url and port accordingly.</p>"+
-			"<h5>Home Assistant MQTT Discovery Topic Prefix</h5><p>This parameter is used only on some Home Assistant integrations.</p>"+
+			"<p><b>Home Assistant MQTT Discovery Topic Prefix: </b>This parameter is used only on some Home Assistant integrations.</p>"+
 			"<p>The device will use \"homeassistant\" as MQTT Discovery Topic Prefix. If you are using your own MQTT broker and you didn`t "
 			+"change the Home Assistant MQTT configuration, you don't need to use this parameter, because \"homeassistant\" is the default one.</p>"+
 			"<p>If you changed the Home Assistant MQTT configuration and you are not using the default MQTT Discovery Topic Prefix, you can change it "
@@ -87,17 +87,16 @@ public class MailController {
 			+" MQTT Discovery Topic Prefix. You can find how to do it here: "
 			+"<a href='https://www.home-assistant.io/docs/mqtt/discovery'>https://www.home-assistant.io/docs/mqtt/discovery/</a>."+
 			"</p>"+
-			"<p>You can find more information in the"
-			+"<a href=\"https://coiaca.com/index.php/documentation/\">documentation section </a>."
-			+ "</p>"
-			+"<p>on"
-			+"<a href=\"https://coiaca.com/\"> Coiaca.com</a>."
+			"<p>You can find more information in the "
+			+"<a href='https://coiaca.com/index.php/documentation/'> documentation section</a>"
+			+" on "
+			+"<a href='https://coiaca.com/'>Coiaca.com</a>."
 			+ "</p>"+
 			"<p>If you have any questions or need further assistance, please contact Coiaca customer support:"
-			+"<a href=\"mailto:support@coiaca.com\">support@coiaca.com</a>."+
-			"<p> </p>"+
-			"<p>Best Regards</p>"+
-			"<p>Coiaca Support</p>";
+			+"<a href='mailto:support@coiaca.com'> support@coiaca.com</a>."+
+			"</p>"+
+			"<p>Best Regards<br/>"+
+			"Coiaca Support</p>";
 			
 			
 			
