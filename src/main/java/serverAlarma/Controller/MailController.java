@@ -49,20 +49,20 @@ public class MailController {
 				tablaprevia=tablaprevia+"<td>"+newDeviceId+"</td>";
 				tablaprevia=tablaprevia+"</tr>";
 				tablaprevia=tablaprevia+"<tr>";
-				tablaprevia=tablaprevia+"<td>"+"UserMQTT"+"</td>";
+				tablaprevia=tablaprevia+"<td>"+"Coiaca MQTT broker username"+"</td>";
 				tablaprevia=tablaprevia+"<td>"+mqttUser+"</td>";
 				tablaprevia=tablaprevia+"</tr>";
 				tablaprevia=tablaprevia+"<tr>";
-				tablaprevia=tablaprevia+"<td>"+"PasswordMQTT"+"</td>";
+				tablaprevia=tablaprevia+"<td>"+"Coiaca MQTT broker Password"+"</td>";
 				tablaprevia=tablaprevia+"<td>"+mqttPAss+"</td>";
 				tablaprevia=tablaprevia+"</tr>";
 				tablaprevia=tablaprevia+"<tr>";
-				tablaprevia=tablaprevia+"<td>"+"HomeAssistant Config"+"</td>";
+				tablaprevia=tablaprevia+"<td>"+"Home Assistant MQTT Discovery Topic prefix"+"</td>";
 				tablaprevia=tablaprevia+"<td>"+userOwner+"</td>";
 				tablaprevia=tablaprevia+"</tr>";
 			
-			String body= "<h1>Welcome to COAICA DSC Alarm </h1> <br/> "
-					+ "<h3>Below you can see the credentials generated for your device</h3> "
+			String body= "<p>Hello,</p>"//<br/>
+					+ "<p>Thanks for registering your Coiaca BRDSC01 device. You will find below credentials and information that will allow you to use all features and services.</p> "
 					+ "<table >\n" + 
 					"  <tr>\n" + 
 					"    <th>Field</th>\n" + 
@@ -71,10 +71,39 @@ public class MailController {
 					"</table>"
 					+ "<br/>"//;
 					//+ "<p> </p>"
-					+ "<p>Your device will automatically update to set these settings and restart</p>";
-			String pie = "<br/> <br/> <footer><p> COIACA</p></footer></BODY></HTML>";
+					+ "<h3>What these parameters are and why do you need them.</h3>"
+			+"<h5>DeviceID</h5><p>Unique identification of your device.</p>"
+			+"<h5>Coiaca MQTT broker username and password</h5><p>These credentials are the ones your device uses "
+			+ "to connect to Coiaca MQTT broker and also can be used with any other a"
+			+ "pplication that you may want to use to control your device with, using Coiaca MQTT broker.</p>"+
+			"<p>If you don't want to use Coiaca MQTT broker, you must replace these credentials with the other broker's. "
+			+ "And in that case, you will also need to configure the broker url and port accordingly.</p>"+
+			"<h5>Home Assistant MQTT Discovery Topic Prefix</h5><p>This parameter is used only on some Home Assistant integrations.</p>"+
+			"<p>The device will use \"homeassistant\" as MQTT Discovery Topic Prefix. If you are using your own MQTT broker and you didn`t "
+			+"change the Home Assistant MQTT configuration, you don't need to use this parameter, because \"homeassistant\" is the default one.</p>"+
+			"<p>If you changed the Home Assistant MQTT configuration and you are not using the default MQTT Discovery Topic Prefix, you can change it "
+			+"on your device configuration screen, updating the \"Default mqttDiscovery prefix\" field.</p>"+
+			"<p>But If you are planning to use Home Assistant with Coiaca MQTT broker you must configure your Home Assistant to use this parameter as"
+			+" MQTT Discovery Topic Prefix. You can find how to do it here: "
+			+"<a href='https://www.home-assistant.io/docs/mqtt/discovery'>https://www.home-assistant.io/docs/mqtt/discovery/</a>."+
+			"</p>"+
+			"<p>You can find more information in the"
+			+"<a href=\"https://coiaca.com/index.php/documentation/\">documentation section </a>."
+			+ "</p>"
+			+"<p>on"
+			+"<a href=\"https://coiaca.com/\"> Coiaca.com</a>."
+			+ "</p>"+
+			"<p>If you have any questions or need further assistance, please contact Coiaca customer support:"
+			+"<a href=\"mailto:support@coiaca.com\">support@coiaca.com</a>."+
+			"<p> </p>"+
+			"<p>Best Regards</p>"+
+			"<p>Coiaca Support</p>";
+			
+			
+			
+			String pie = "<br/> <br/></BODY></HTML>";
 			String formulario = String.format("%s%s%s%s", cabecera, body, "<br/> <br/>", pie);
-			sendMail(formulario, email);
+			sendMail(formulario, email,newDeviceId);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -82,7 +111,7 @@ public class MailController {
 	
 	
 	
-	public static void sendMail(String Mensaje,String destino) {
+	public static void sendMail(String Mensaje,String destino,String deviceid) {
 		Properties props = new Properties();
 		props.put("mail.smtp.host", "smtp.gmail.com");
 		props.put("mail.smtp.auth", "true");
@@ -92,7 +121,7 @@ public class MailController {
 		Session session = Session.getInstance(props,
 				new javax.mail.Authenticator() {
 			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication("iot@qliq.com.ar", "nMvJRVdqb0DXlgpPVJnr");
+				return new PasswordAuthentication("support@qliq.com.ar", "soporte2843");
 			}
 		});
 		MimeMessage message = new MimeMessage(session);
@@ -100,10 +129,10 @@ public class MailController {
 			message.setFrom(new InternetAddress("COIACA"));
 			message.setRecipients(Message.RecipientType.TO,
 					InternetAddress.parse(destino));
-			message.setSubject("[CAICA]: no-reply");
+			message.setSubject("Coiaca Device Registration: "+ deviceid);
 			message.setText(Mensaje,"ISO-8859-1","html");
 			Transport transport = session.getTransport("smtp");
-			transport.connect("smtp.gmail.com","iot@cdash.space", "nMvJRVdqb0DXlgpPVJnr");
+			transport.connect("smtp.gmail.com","support@qliq.com.ar", "soporte2843");
 	        transport.sendMessage(message, message.getAllRecipients());
 	        transport.close();
 			System.out.println("Su mensaje se envio correctamente");
@@ -164,7 +193,7 @@ public class MailController {
 				+ "<br/>";
 		String pie = "<br/> <br/> <footer><p> Dash</p></footer></BODY></HTML>";
 		String formulario = String.format("%s%s%s%s", cabecera, body, "<br/> <br/>", pie);
-		MailController.sendMail(formulario, "leandrogabrielguzman@gmail.com");
+		MailController.sendMail(formulario, "leandrogabrielguzman@gmail.com","");
 
 	}
 

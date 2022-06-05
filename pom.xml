@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-	<packaging>jar</packaging>
+	<packaging>war</packaging>
     <groupId>org.springframework</groupId>
     <artifactId>serverAlarma</artifactId>
     <version>1.0</version>
@@ -15,22 +15,25 @@
     <build>
     	<finalName>serverAlarma</finalName>   
         <plugins>
-         	<plugin>
-             	<groupId>org.apache.tomcat.maven</groupId>
-             	<artifactId>tomcat8-maven-plugin</artifactId>
-             	<version>2.2</version>
-             	<configuration>
-			        <archive>
-			          <manifest>
-			            <addClasspath>true</addClasspath>
-			            <mainClass>serverAlarma.Application</mainClass>
-			          </manifest>
-			        </archive>
-	     		 </configuration>
-         	</plugin>
+<!--          	<plugin> -->
+<!--              	<groupId>org.apache.tomcat.maven</groupId> -->
+<!--              	<artifactId>tomcat8-maven-plugin</artifactId> -->
+<!--              	<version>2.2</version> -->
+<!--              	<configuration> -->
+<!-- 			        <archive> -->
+<!-- 			          <manifest> -->
+<!-- 			            <addClasspath>true</addClasspath> -->
+<!-- 			            <mainClass>serverAlarma.Application</mainClass> -->
+<!-- 			          </manifest> -->
+<!-- 			        </archive> -->
+<!-- 	     		 </configuration> -->
+<!--          	</plugin> -->
          	<plugin>
 	            <groupId>org.springframework.boot</groupId>
 	            <artifactId>spring-boot-maven-plugin</artifactId>
+	            <configuration>
+			        <executable>true</executable>
+			    </configuration>
         	</plugin>
         </plugins>
     </build>

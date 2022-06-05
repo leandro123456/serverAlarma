@@ -24,6 +24,16 @@ import serverAlarma.Controller.MailController;
 public class TestMails {
 	
 	//@Test
+	public void sendMail() {
+		String userID="userIDvalue";
+		String newDeviceId="deviceIDVALUE";
+		String mqttUser="mqttUser";
+		String mqttPass="mqttPass";
+		String email="leandroplay1448@gmail.com";
+		MailController.enviarNotificacion(userID,newDeviceId,mqttUser,mqttPass,email);
+	}
+	
+	//@Test
 	public void parseoDeMensaje() {
 		String NdvHATypDvid= "1-1-DSC01-DSC010001022202";
 		String[] a = NdvHATypDvid.split("-");
@@ -246,7 +256,7 @@ public class TestMails {
 				+ "<p>Su dispositivo se actualizara automaticamente para establecer esta configuracion y se reiniciara</p>";
 		String pie = "<br/> <br/> <footer><p> COIACA</p></footer></BODY></HTML>";
 		String formulario = String.format("%s%s%s%s", cabecera, body, "<br/> <br/>", pie);
-		MailController.sendMail(formulario, "leandroplay1448@gmail.com");
+		MailController.sendMail(formulario, "leandroplay1448@gmail.com","deviceID");
 		System.out.println("termino");
 	}
 }

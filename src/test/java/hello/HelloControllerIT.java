@@ -1,6 +1,7 @@
 package hello;
 
 import java.net.URI;
+import java.util.Date;
 import java.util.Random;
 
 import org.junit.Test;
@@ -17,11 +18,28 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
+import serverAlarma.Controller.MailController;
+import serverAlarma.Persistence.DAO.PostgresDAO;
 import serverAlarma.Persistence.DAO.UserDAO;
+import serverAlarma.Persistence.Model.PostgresID;
 import serverAlarma.Persistence.Model.UserAlarm;
+import serverAlarma.util.Utils;
 
 
 public class HelloControllerIT {
+	
+	//@Test
+	public void testCreateHashPassword() {
+		System.out.println(Utils.hashPassword("sapo"));
+	}
+	
+	//@Test
+	public void testobtainID() {
+		PostgresDAO psqldao= new PostgresDAO();
+		PostgresID psql= new PostgresID();
+		psql.setIdpotgres(10);
+		psqldao.create(psql);
+	}
 	
 //	@Test
 	public void testSearchUserbyDeviceID() {

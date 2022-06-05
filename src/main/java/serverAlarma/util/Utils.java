@@ -16,7 +16,9 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 
 import serverAlarma.Persistence.DAO.DeviceDAO;
+import serverAlarma.Persistence.DAO.PostgresDAO;
 import serverAlarma.Persistence.Model.Device;
+import serverAlarma.Persistence.Model.PostgresID;
 
 public class Utils {
 	
@@ -125,28 +127,37 @@ public class Utils {
 	}
 
 	public static void CreateUserInMosquittoDB(String newDeviceId, String mqttUser, String mqttPass) {
-		String host ="127.0.0.1";
 		Connection c = null;
 		String passHashed=null;
+		PostgresDAO psqldao= new PostgresDAO();
+		PostgresID psqlid= psqldao.retrieveFirst();
+		Integer psqlInt = psqlid.getIdpotgres();
+		Integer psqlIntACL=psqlid.getIdpotgresacl();
+		psqlid.setIdpotgres(psqlid.getIdpotgres()+1);
+		psqlid.setIdpotgresacl(psqlid.getIdpotgresacl()+7);
+		psqldao.update(psqlid);
 		try {
-			Process process = Runtime.getRuntime().exec("/home/steven/Desktop/mosquitto-go-auth/./pw -p "+mqttPass);
-			InputStream inputstream = process.getInputStream();
-			BufferedInputStream bufferedinputstream = new BufferedInputStream(inputstream);
-			
-			passHashed = new BufferedReader(new InputStreamReader(bufferedinputstream, StandardCharsets.UTF_8))
-					 .lines()
-					 .collect(Collectors.joining("\n"));
-			 
+			//remoto
+			passHashed= hashPassword(mqttPass);
+			//local
+//			Process process = Runtime.getRuntime().exec("/home/mosquitto-go-auth/./pw -p "+mqttPass);
+//			InputStream inputstream = process.getInputStream();
+//			BufferedInputStream bufferedinputstream = new BufferedInputStream(inputstream);
+//			
+//			passHashed = new BufferedReader(new InputStreamReader(bufferedinputstream, StandardCharsets.UTF_8))
+//					 .lines().collect(Collectors.joining("\n"));
+
 			Class.forName("org.postgresql.Driver");
 			c = DriverManager.getConnection("jdbc:postgresql://"+Settings.getInstance().getMqttDBurl()+"/"+
 					Settings.getInstance().getMqttDBName(),Settings.getInstance().getMqttDBUser(),
 					Settings.getInstance().getMqttDBPass());
 			c.setAutoCommit(false);
-			String sql = "INSERT INTO users (username,password_hash,is_admin) VALUES (?,?,?);";
+			String sql = "INSERT INTO users (id,username,password_hash,is_admin) VALUES (?,?,?,?);";
 			PreparedStatement pstmt = c.prepareStatement(sql);
-			pstmt.setString(1, mqttUser);
-			pstmt.setString(2, passHashed);
-			pstmt.setBoolean(3, false);
+			pstmt.setInt(1, psqlInt);
+			pstmt.setString(2, mqttUser);
+			pstmt.setString(3, passHashed);
+			pstmt.setBoolean(4, false);
 			pstmt.execute();
 			pstmt.close();
 			c.commit();
@@ -158,12 +169,51 @@ public class Utils {
 		}
 		System.out.println("Created USER successfully");
 		
-		CreateFirstACL(mqttUser);
-		CreateACL(mqttUser,newDeviceId);
+		CreateFirstACL(mqttUser,psqlIntACL);
+		CreateACL(mqttUser,newDeviceId,psqlIntACL);
 	}
 	
 	
-	private static void CreateFirstACL(String mqttUser) {
+	public static String hashPassword(String mqttPass) {
+		Session session = null;
+		ChannelExec channel = null;
+		try {
+			session = new JSch().getSession("root", "161.35.254.222");
+			session.setPassword("4cZ8i%~tz'dy$KVDHH;//%OZOI");
+			session.setConfig("StrictHostKeyChecking", "no");
+			session.connect();
+			String commando= "/home/mosquitto-go-auth/./pw -p "+mqttPass;
+			channel = (ChannelExec) session.openChannel("exec");
+			channel.setCommand(commando);
+			ByteArrayOutputStream responseStream = new ByteArrayOutputStream();
+			channel.setOutputStream(responseStream);
+			channel.connect();
+			
+			
+			InputStream inputstream = channel.getInputStream();
+			BufferedInputStream bufferedinputstream = new BufferedInputStream(inputstream);
+			
+			String passHashed = new BufferedReader(new InputStreamReader(bufferedinputstream, StandardCharsets.UTF_8))
+					 .lines()
+					 .collect(Collectors.joining("\n"));
+			
+	
+			while (channel.isConnected()) {
+				Thread.sleep(100);
+			}
+			session.disconnect();
+			return passHashed;
+	
+		}catch (Exception e) {
+			if (session != null) 
+				session.disconnect();
+			if (channel != null) 
+				channel.disconnect();
+		}
+		return null;
+	}
+
+	private static void CreateFirstACL(String mqttUser,Integer valor) {
 		Connection c = null;
 		try {
 			Class.forName("org.postgresql.Driver");
@@ -171,11 +221,12 @@ public class Utils {
 					Settings.getInstance().getMqttDBName(),Settings.getInstance().getMqttDBUser(),
 					Settings.getInstance().getMqttDBPass());
 			c.setAutoCommit(false);
-			String sql = "INSERT INTO acls (username,topic,rw)"+ "VALUES (?, ?, ?);";
+			String sql = "INSERT INTO acls (id,username,topic,rw)"+ "VALUES (?,?, ?, ?);";
 			PreparedStatement pstmt = c.prepareStatement(sql);
-			pstmt.setString(1, mqttUser);
-			pstmt.setString(2,"homeassistant/#");
-			pstmt.setInt(3, 2);
+			pstmt.setInt(1, valor);
+			pstmt.setString(2, mqttUser);
+			pstmt.setString(3,"homeassistant/#");
+			pstmt.setInt(4, 2);
 			pstmt.executeUpdate();
 			pstmt.close();
 			c.commit();
@@ -184,14 +235,14 @@ public class Utils {
 		} catch (Exception e) {
 			System.err.println( e.getClass().getName()+": "+ e.getMessage() );
 			if(e.getMessage().contains("duplicate key value"))
-				CreateFirstACL(mqttUser);
+				CreateFirstACL(mqttUser,valor+1);
 		}
 		System.out.println("ACL created successfully");
 		
 	}
 	
 
-	public static void CreateACL(String mqttUser, String newDeviceId) {
+	public static void CreateACL(String mqttUser, String newDeviceId, Integer countAcl) {
 		Connection c = null;
 		try {
 			Class.forName("org.postgresql.Driver");
@@ -199,11 +250,12 @@ public class Utils {
 					Settings.getInstance().getMqttDBName(),Settings.getInstance().getMqttDBUser(),
 					Settings.getInstance().getMqttDBPass());
 			c.setAutoCommit(false);
-			String sql = "INSERT INTO acls (username,topic,rw)"+ "VALUES (?, ?, ?);";
+			String sql = "INSERT INTO acls (id,username,topic,rw)"+ "VALUES (?,?, ?,?);";
 			PreparedStatement pstmt = c.prepareStatement(sql);
-			pstmt.setString(1, mqttUser);
-			pstmt.setString(2, newDeviceId+"/#");
-			pstmt.setInt(3, 4);
+			pstmt.setInt(1, countAcl);
+			pstmt.setString(2, mqttUser);
+			pstmt.setString(3, newDeviceId+"/#");
+			pstmt.setInt(4, 4);
 			pstmt.executeUpdate();
 			pstmt.close();
 			c.commit();
@@ -212,9 +264,146 @@ public class Utils {
 		} catch (Exception e) {
 			System.err.println( e.getClass().getName()+": "+ e.getMessage() );
 			if(e.getMessage().contains("duplicate key value"))
-				CreateACL(mqttUser,newDeviceId);
+				CreateACL(mqttUser,newDeviceId, countAcl+1);
 		}
+		createMNTR(mqttUser,newDeviceId,countAcl+1);
+		createMNTRr(mqttUser,newDeviceId,countAcl+2);
+		createTelem(mqttUser,newDeviceId,countAcl+3);
+		createRmgn(mqttUser,newDeviceId,countAcl+4);
+		createRmgnr(mqttUser,newDeviceId,countAcl+5);
+		
 		System.out.println("ACL created successfully");
+		
+	}
+
+	private static void createRmgnr(String mqttUser, String newDeviceId, Integer valor) {
+		Connection c = null;
+		try {
+			Class.forName("org.postgresql.Driver");
+			c = DriverManager.getConnection("jdbc:postgresql://"+Settings.getInstance().getMqttDBurl()+"/"+
+					Settings.getInstance().getMqttDBName(),Settings.getInstance().getMqttDBUser(),
+					Settings.getInstance().getMqttDBPass());
+			c.setAutoCommit(false);
+			String sql = "INSERT INTO acls (id,username,topic,rw)"+ "VALUES (?,?, ?, ?);";
+			PreparedStatement pstmt = c.prepareStatement(sql);
+			pstmt.setInt(1, valor);
+			pstmt.setString(2, mqttUser);
+			pstmt.setString(3, "RMgmt/"+newDeviceId+"/#");
+			pstmt.setInt(4, 2);
+			pstmt.executeUpdate();
+			pstmt.close();
+			c.commit();
+			c.close();
+
+		} catch (Exception e) {
+			System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+			if(e.getMessage().contains("duplicate key value"))
+				createRmgnr(mqttUser,newDeviceId,valor+1);
+		}
+	}
+
+	private static void createRmgn(String mqttUser, String newDeviceId,Integer valor) {
+		Connection c = null;
+		try {
+			Class.forName("org.postgresql.Driver");
+			c = DriverManager.getConnection("jdbc:postgresql://"+Settings.getInstance().getMqttDBurl()+"/"+
+					Settings.getInstance().getMqttDBName(),Settings.getInstance().getMqttDBUser(),
+					Settings.getInstance().getMqttDBPass());
+			c.setAutoCommit(false);
+			String sql = "INSERT INTO acls (id,username,topic,rw)"+ "VALUES (?,?, ?, ?);";
+			PreparedStatement pstmt = c.prepareStatement(sql);
+			pstmt.setInt(1, valor);
+			pstmt.setString(2, mqttUser);
+			pstmt.setString(3, "RMgmt/"+newDeviceId);
+			pstmt.setInt(4, 1);
+			pstmt.executeUpdate();
+			pstmt.close();
+			c.commit();
+			c.close();
+
+		} catch (Exception e) {
+			System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+			if(e.getMessage().contains("duplicate key value"))
+				createRmgn(mqttUser,newDeviceId,valor+1);
+		}
+	}
+
+	private static void createTelem(String mqttUser, String newDeviceId,Integer valor) {
+		Connection c = null;
+		try {
+			Class.forName("org.postgresql.Driver");
+			c = DriverManager.getConnection("jdbc:postgresql://"+Settings.getInstance().getMqttDBurl()+"/"+
+					Settings.getInstance().getMqttDBName(),Settings.getInstance().getMqttDBUser(),
+					Settings.getInstance().getMqttDBPass());
+			c.setAutoCommit(false);
+			String sql = "INSERT INTO acls (id,username,topic,rw)"+ "VALUES (?,?, ?, ?);";
+			PreparedStatement pstmt = c.prepareStatement(sql);
+			pstmt.setInt(1, valor);
+			pstmt.setString(2, mqttUser);
+			pstmt.setString(3, "teleM/"+newDeviceId);
+			pstmt.setInt(4, 2);
+			pstmt.executeUpdate();
+			pstmt.close();
+			c.commit();
+			c.close();
+
+		} catch (Exception e) {
+			System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+			if(e.getMessage().contains("duplicate key value"))
+				createTelem(mqttUser,newDeviceId,valor+1);
+		}
+	}
+
+	private static void createMNTRr(String mqttUser, String newDeviceId,Integer valor) {
+		Connection c = null;
+		try {
+			Class.forName("org.postgresql.Driver");
+			c = DriverManager.getConnection("jdbc:postgresql://"+Settings.getInstance().getMqttDBurl()+"/"+
+					Settings.getInstance().getMqttDBName(),Settings.getInstance().getMqttDBUser(),
+					Settings.getInstance().getMqttDBPass());
+			c.setAutoCommit(false);
+			String sql = "INSERT INTO acls (id,username,topic,rw)"+ "VALUES (?,?, ?, ?);";
+			PreparedStatement pstmt = c.prepareStatement(sql);
+			pstmt.setInt(1, valor);
+			pstmt.setString(2, mqttUser);
+			pstmt.setString(3, "MNTR/"+newDeviceId+"/#");
+			pstmt.setInt(4, 2);
+			pstmt.executeUpdate();
+			pstmt.close();
+			c.commit();
+			c.close();
+
+		} catch (Exception e) {
+			System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+			if(e.getMessage().contains("duplicate key value"))
+				createMNTRr(mqttUser,newDeviceId,valor+1);
+		}
+	}
+
+	private static void createMNTR(String mqttUser, String newDeviceId,Integer valor) {
+		Connection c = null;
+		try {
+			Class.forName("org.postgresql.Driver");
+			c = DriverManager.getConnection("jdbc:postgresql://"+Settings.getInstance().getMqttDBurl()+"/"+
+					Settings.getInstance().getMqttDBName(),Settings.getInstance().getMqttDBUser(),
+					Settings.getInstance().getMqttDBPass());
+			c.setAutoCommit(false);
+			String sql = "INSERT INTO acls (id,username,topic,rw)"+ "VALUES (?,?, ?, ?);";
+			PreparedStatement pstmt = c.prepareStatement(sql);
+			pstmt.setInt(1, valor);
+			pstmt.setString(2, mqttUser);
+			pstmt.setString(3, "MNTR/"+newDeviceId);
+			pstmt.setInt(4, 2);
+			pstmt.executeUpdate();
+			pstmt.close();
+			c.commit();
+			c.close();
+
+		} catch (Exception e) {
+			System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+			if(e.getMessage().contains("duplicate key value"))
+				createMNTR(mqttUser,newDeviceId,valor+1);
+		}
 		
 	}
 

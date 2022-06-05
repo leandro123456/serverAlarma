@@ -28,8 +28,10 @@ import serverAlarma.util.Settings;
 import serverAlarma.util.Utils;
 import serverAlarma.Configuration.HomeAssistanConfig;
 import serverAlarma.Persistence.DAO.DeviceDAO;
+import serverAlarma.Persistence.DAO.PostgresDAO;
 import serverAlarma.Persistence.DAO.UserDAO;
 import serverAlarma.Persistence.Model.Device;
+import serverAlarma.Persistence.Model.PostgresID;
 import serverAlarma.Persistence.Model.UserAlarm;
 
 public class MqttConnect implements MqttCallback{
@@ -140,22 +142,14 @@ public class MqttConnect implements MqttCallback{
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-
+					
 					//enviar mensaje mqtt
 					String clientIDRecibed=topic.replace("Deviceconfig/", "");
 					sendResponseMQTT(clientIDRecibed,newDeviceId,userID,mqttUser,mqttPass);
 					System.out.println("Envio la respuesta via MQTT");
 
-					//implementacion para HomeAssistant
-					if(false) {//needConfigHA
-						System.out.println("Entro en config de HA");
-						ResponseMQTTHomeAssistant.sendResponseMQTTHA(clientIDRecibed,newDeviceId,userID,mqttUser,mqttPass,type);
-						System.out.println("Envio la respuesta via MQTT");
-					}
-
-					//cargar usuario en mosquitto
+					//Create MQTT user
 					Utils.CreateUserInMosquittoDB(newDeviceId,mqttUser,mqttPass);
-					//Utils.UploadUserInMosquitto(mqttUser,mqttPass);
 					System.out.println("Actualizo Mosquitto");
 
 				}
@@ -178,13 +172,14 @@ public class MqttConnect implements MqttCallback{
 							String clientIDRecibed=topic.replace("Deviceconfig/", "");
 							sendResponseMQTT(clientIDRecibed,newDeviceId,user.getUserID(),user.getMqttUser(),user.getMqttPassword());
 							System.out.println("Envio la respuesta via MQTT");
-
-							//implementacion para HomeAssistant
-							if(false) {//needConfigHA
-								ResponseMQTTHomeAssistant.sendResponseMQTTHA(clientIDRecibed,newDeviceId,user.getUserID(),user.getMqttUser(),user.getMqttPassword(),type);
-								System.out.println("Envio la respuesta via MQTT");
-							}
-							Utils.CreateACL(user.getMqttUser(),newDeviceId);
+							
+							PostgresDAO psqldao= new PostgresDAO();
+							PostgresID psqlid= psqldao.retrieveFirst();
+							Integer psqlInt = psqlid.getIdpotgres();
+							psqlid.setIdpotgres(psqlid.getIdpotgres()+7);
+							psqldao.update(psqlid);
+							//Update MQTT user
+							Utils.CreateACL(user.getMqttUser(),newDeviceId,psqlInt);
 
 						}else {
 							//si el dispositivo ya existia
@@ -203,7 +198,7 @@ public class MqttConnect implements MqttCallback{
 							System.out.println("Envio la respuesta via MQTT");
 
 							String mensaje= "The email address is already registered on the platform.... Error in the password sent, it does not match the registered password: "+passCuent;
-							MailController.sendMail(mensaje,email);
+							MailController.sendMail(mensaje,email,deviceIDRecibe);
 
 						} catch (Exception e) {
 							e.printStackTrace();
