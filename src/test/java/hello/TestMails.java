@@ -29,7 +29,7 @@ public class TestMails {
 		String newDeviceId="deviceIDVALUE";
 		String mqttUser="mqttUser";
 		String mqttPass="mqttPass";
-		String email="federico@coiaca.com";//"leandroplay1448@gmail.com";//
+		String email="leandroplay1448@gmail.com";//"federico@coiaca.com";//
 		MailController.enviarNotificacion(userID,newDeviceId,mqttUser,mqttPass,email);
 	}
 	
