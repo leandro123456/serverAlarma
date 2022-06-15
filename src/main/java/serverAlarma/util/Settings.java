@@ -71,19 +71,7 @@ public class Settings {
 
 	public String getPasswordBroker() {
 		return passwordBroker;
-	}
-
-//	public String getMqttURI() {
-//		return mqttURI;
-//	}
-
-//	public String getMqttPort() {
-//		return mqttPort;
-//	}
-
-//	public String getMqttIsSecure() {
-//		return mqttIsSecure;
-//	}   
+	} 
 	
 }
 

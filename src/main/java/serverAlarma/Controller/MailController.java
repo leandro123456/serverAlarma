@@ -120,7 +120,7 @@ public class MailController {
 		Session session = Session.getInstance(props,
 				new javax.mail.Authenticator() {
 			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication("support@qliq.com.ar", "soporte2843");
+				return new PasswordAuthentication("support@qliq.com.ar", "TkblMT~e6q|");
 			}
 		});
 		MimeMessage message = new MimeMessage(session);
@@ -131,7 +131,7 @@ public class MailController {
 			message.setSubject("Coiaca Device Registration: "+ deviceid);
 			message.setText(Mensaje,"ISO-8859-1","html");
 			Transport transport = session.getTransport("smtp");
-			transport.connect("smtp.gmail.com","support@qliq.com.ar", "soporte2843");
+			transport.connect("smtp.gmail.com","support@qliq.com.ar", "TkblMT~e6q|");
 	        transport.sendMessage(message, message.getAllRecipients());
 	        transport.close();
 			System.out.println("Su mensaje se envio correctamente");

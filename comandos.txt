@@ -1,0 +1,41 @@
+auth_opt_aclquery SELECT topic FROM acls WHERE (username = $1) AND (rw & $2) > 0```
+
+CREATE TABLE account (id serial PRIMARY KEY,username VARCHAR ( 50 ) NOT NULL,password VARCHAR ( 150 ) NOT NULL,super INT NOT NULL);
+
+INSERT INTO account (id, username,password,super) VALUES(1,'lean','PBKDF2$sha512$100000$a4mOtKL5zlh7vQ2rn3HX5Q==$q94S/qhUO9cuHdPH5ku9NJ2LxH80ZqMBpoGP57FErgN7R3Mpl644+YHb6NVOWbyJlC4MVtSoYd035ARzqs+0rw==',1);
+
+CREATE TABLE acls (id serial PRIMARY KEY,username VARCHAR ( 50 ) NOT NULL,topic VARCHAR ( 150 ) NOT NULL,rw INT NOT NULL);
+INSERT INTO acls (id, username,topic,rw) VALUES(1,'lean','#',1);
+
+CREATE TABLE acl (id INTEGER PRIMARY KEY,	Name TEXT NOT NULL, topic TEXT NOT NULL,	rw INTEGER NOT NULL);
+
+
+create table users(id bigserial primary key,username character varying (100) not null,password_hash character varying (200) not null,is_admin boolean not null);
+
+
+mosquitto_sub -h node02.myqtthub.com -p 8883 --capath /etc/ssl/certs -i <client-id> -u <username-> -P '<password>' -t message/topic/to/subscribe -q 2`
+mosquitto_sub -h localhost -p 1883 -u cin -P 'gab' -t 'homeassistant/#'
+
+mosquitto_pub -h localhost -p 1883 -u otro -P 'otro' -t homeassistant/dev000011 -m "hello world"
+
+mosquitto_pub -h node02.myqtthub.com -i <client2-id> -u <username2> -P '<password2>' -t message/topic/to/subscribe -m "hello world"
+
+
+
+INSERT INTO acls (id, username,topic,rw) VALUES(2,'otro','#',4);
+
+insert into users (id,username,password_hash,is_admin) values (2,'otro','PBKDF2$sha512$100000$XPR1O3pJfheA9pR3ToIa0A==$YjKdZ0EsIl7nGAfOeb3Y3Dsff/oXU7GsmZUxtXmZx07VPwaRMUEsNE1OTdag2qh1NCQpWCwEspRJLidnEAYbpg==',false);
+
+
+
+mosquitto_pub -r -h 127.0.0.1 -p 1883 -u sapo -P 'sapo1' -t "homeassistant/switch/irrigation/config" \
+  -m '{"name": "garden", "command_topic": "user1/switch/irrigation/set", "state_topic": "user1/switch/irrigation/state"}'	
+  
+
+mosquitto_pub -r -h 127.0.0.1 -p 1883 -u 14FB2066 -P '3D99EF436BB0773C' -t "homeassistant/alarm_control_panel/DSC010000000131/config" -m '{"~":"DSC010000000131","name":"Security Partition 1","cmd_t":"~/Set","stat_t":"~/Partition1","avty_t":"~/Status","pl_disarm":"1D","pl_arm_home":"1S","pl_arm_away":"1A","pl_arm_nite":"1N"}'	
+  
+ 
+
+
+
+"{\"~\":\"DSC010000000131\",\"name\":\"Security Partition 1\",\"cmd_t\":\"~/Set\",\"stat_t\":\"~/Partition1\",\"avty_t\":\"~/Status\",\"pl_disarm\":\"1D\",\"pl_arm_home\":\"1S'",\"pl_arm_away\":\"1A\",\"pl_arm_nite\":\"1N\"}"
