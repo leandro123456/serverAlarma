@@ -26,6 +26,7 @@ public class Settings {
 
     public void load() {
         try {
+        	
             this.uriBroker = "tcp://161.35.254.222:1883";//properties.getProperty("uriBroker");
             this.userNameBroker = "cDashSVR";//properties.getProperty("userNameBroker");
             this.passwordBroker = "av1vEDacfGwXc5";//properties.getProperty("passwordBroker");
