@@ -12,7 +12,7 @@ import lombok.Setter;
 @Entity
 public class Acls {
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy=GenerationType.AUTO)
 	private long id;
 	private String username;
 	private String topic;
