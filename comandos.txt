@@ -1,3 +1,12 @@
+curl http://localhost:8099/userBrocker/create/leandrotestnuevo/mypassdetest
+
+
+Deviceconfig/request
+{ "mail":"leandroplay1448@gmail.com"
+"pwd":"cin"
+"NdvHATypDvid":"1-DSC01-empty"
+}
+
 auth_opt_aclquery SELECT topic FROM acls WHERE (username = $1) AND (rw & $2) > 0```
 
 CREATE TABLE account (id serial PRIMARY KEY,username VARCHAR ( 50 ) NOT NULL,password VARCHAR ( 150 ) NOT NULL,super INT NOT NULL);
@@ -22,9 +31,9 @@ mosquitto_pub -h node02.myqtthub.com -i <client2-id> -u <username2> -P '<passwor
 
 
 
-INSERT INTO acls (id, username,topic,rw) VALUES(2,'otro','#',4);
+INSERT INTO acls (id, username,topic,rw) VALUES(55,'mqttusr','#',4);
 
-insert into users (id,username,password_hash,is_admin) values (2,'otro','PBKDF2$sha512$100000$XPR1O3pJfheA9pR3ToIa0A==$YjKdZ0EsIl7nGAfOeb3Y3Dsff/oXU7GsmZUxtXmZx07VPwaRMUEsNE1OTdag2qh1NCQpWCwEspRJLidnEAYbpg==',false);
+insert into users (id,username,password_hash,is_admin) values (2,'mqttusr','PBKDF2$sha512$100000$Bo+31lFIh6alxD0DYlNB8Q==$d+mb8B1MLVi/KRpu1bG20EckomkE0rjIuasLG5UVyul+NpEROovphoiQINHoABbyLe0JzGe+7+Fwk+RV+ArHqw==',false);
 
 
 

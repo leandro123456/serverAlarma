@@ -17,7 +17,9 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.json.JSONObject;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.context.support.UiApplicationContextUtils;
+import org.springframework.web.client.RestTemplate;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
@@ -33,6 +35,7 @@ import serverAlarma.Persistence.DAO.UserDAO;
 import serverAlarma.Persistence.Model.Device;
 import serverAlarma.Persistence.Model.PostgresID;
 import serverAlarma.Persistence.Model.UserAlarm;
+import serverAlarma.Persistence.Postgresql.Controller.UserBrockerController;
 
 public class MqttConnect implements MqttCallback{
 	private static MqttConnect mqttconnect= null;
@@ -82,6 +85,7 @@ public class MqttConnect implements MqttCallback{
 	public void sendServerStatus(MqttClient client,String payload) throws MqttException {
 		MqttMessage message = new MqttMessage(payload.getBytes());
 		message.setQos(0);
+		message.setRetained(true);
 		client.publish("ServerAlarm/Status", message);
 		System.out.println("Se envio el mensaje del estado del Server Alarma");
 	}
@@ -148,7 +152,7 @@ public class MqttConnect implements MqttCallback{
 					sendResponseMQTT(clientIDRecibed,newDeviceId,userID,mqttUser,mqttPass);
 					System.out.println("Envio la respuesta via MQTT");
 
-					//Create MQTT user
+					//Create MQTT user					
 					Utils.CreateUserInMosquittoDB(newDeviceId,mqttUser,mqttPass);
 					System.out.println("Actualizo Mosquitto");
 
@@ -173,14 +177,8 @@ public class MqttConnect implements MqttCallback{
 							sendResponseMQTT(clientIDRecibed,newDeviceId,user.getUserID(),user.getMqttUser(),user.getMqttPassword());
 							System.out.println("Envio la respuesta via MQTT");
 							
-							PostgresDAO psqldao= new PostgresDAO();
-							PostgresID psqlid= psqldao.retrieveFirst();
-							Integer psqlInt = psqlid.getIdpotgres();
-							psqlid.setIdpotgres(psqlid.getIdpotgres()+7);
-							psqldao.update(psqlid);
 							//Update MQTT user
-							Utils.CreateACL(user.getMqttUser(),newDeviceId,psqlInt);
-
+							Utils.UpdateTopicsToUser(user.getMqttUser(),newDeviceId);
 						}else {
 							//si el dispositivo ya existia
 							//enviar mensaje mqtt

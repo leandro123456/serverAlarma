@@ -52,7 +52,7 @@ public class MonitorComponent {
 			MqttMessage message = new MqttMessage();
 			message.setPayload(json.toString().getBytes());
 			message.setQos(0);
-			message.setRetained(false);
+			message.setRetained(true);
 			publisher.publish(topico,message); 
 			TimeUnit.SECONDS.sleep(3);
 		} catch (Exception e) {

@@ -15,8 +15,26 @@ import java.util.stream.Collectors;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import serverAlarma.Persistence.Postgresql.Controller.UserBrockerController;
+import serverAlarma.Persistence.Postgresql.JPA.Interface.IUserBrocker;
+import serverAlarma.Persistence.Postgresql.Model.Users;
+import serverAlarma.util.Utils;
 
 public class TestPostgres {
+
+	@Autowired
+	IUserBrocker iUserBrocker;
+
+	//@Test
+	public void testCreateUserByInterface() {
+		String passHashed= Utils.hashPassword("mqttPassMyPassword");
+		Users user= new Users();
+		user.setIs_admin(false);
+		user.setUsername("leandroNuevo2");
+		user.setPassword_hash(passHashed);
+		iUserBrocker.saveUserBrocker(user);
+		System.out.println("termino de guardar");
+	}
 	
 
 	
