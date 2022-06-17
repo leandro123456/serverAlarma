@@ -27,7 +27,7 @@ public class Application {
 	@Bean
 	public WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> setConfiguration() {
 		return factory -> {
-			factory.setPort(8099);
+			factory.setPort(80);
 		};
     }
     
