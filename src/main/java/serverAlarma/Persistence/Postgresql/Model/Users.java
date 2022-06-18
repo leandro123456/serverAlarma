@@ -12,7 +12,7 @@ import lombok.Setter;
 @Entity
 public class Users {	
 	@Id
-	@GeneratedValue(strategy=GenerationType.SEQUENCE)
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private long id;
 	private String username;
 	private String password_hash;
