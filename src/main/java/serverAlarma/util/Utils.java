@@ -131,18 +131,18 @@ public class Utils {
 	public static void CreateUserInMosquittoDB(String newDeviceId, String mqttUser, String mqttPass) {
 		RestTemplate restTemplate = new RestTemplate();
 		//createUser
-		restTemplate.getForEntity("http://localhost:8099/userbrocker/create/"+mqttUser + "/"+mqttPass, String.class);
+		restTemplate.getForEntity(Settings.getInstance().getMyUrl()+"/userbrocker/create/"+mqttUser + "/"+mqttPass, String.class);
 		System.out.println("Created USER successfully");
 		//create Acl
-		restTemplate.getForEntity("http://localhost:8099/aclbrocker/createfirst/"+mqttUser, String.class);
+		restTemplate.getForEntity(Settings.getInstance().getMyUrl()+"/aclbrocker/createfirst/"+mqttUser, String.class);
 		System.out.println("ACL first created successfully");
-		restTemplate.getForEntity("http://localhost:8099/aclbrocker/update/"+mqttUser+"/"+newDeviceId, String.class);
+		restTemplate.getForEntity(Settings.getInstance().getMyUrl()+"/aclbrocker/update/"+mqttUser+"/"+newDeviceId, String.class);
 		System.out.println("ACL created successfully");
 	}
 	
 	public static void UpdateTopicsToUser(String mqttUser  , String newDeviceId) {
 		RestTemplate restTemplate = new RestTemplate();
-		restTemplate.getForEntity("http://localhost:8099/aclbrocker/update/"+mqttUser+"/"+newDeviceId, String.class);
+		restTemplate.getForEntity(Settings.getInstance().getMyUrl()+"/aclbrocker/update/"+mqttUser+"/"+newDeviceId, String.class);
 		System.out.println("ACL created successfully");
 	}
 	

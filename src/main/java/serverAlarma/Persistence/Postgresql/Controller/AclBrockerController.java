@@ -86,4 +86,62 @@ public class AclBrockerController {
 		return iAclBrocker.getAllAclsBrocker();
 	}
 	
+	@GetMapping("/aclbrocker/reprovisioning")
+	public String UpdateAcl() {
+		
+		String[] roots= {"lean","otro","leandro","cDashSVR"};
+		for(String value:roots) {
+			Acls acl= new Acls();
+			acl.setUsername(value);
+			acl.setTopic("#");
+			acl.setRw(4);
+			iAclBrocker.saveAclsBrocker(acl);
+		}
+		
+		String[] others={"CLWP30000000001","DSC010000000001","DSC010000000002","DSC010000000003","DSC010000000004","DSC010000000005","DSC010000000006","DSC010000000007",
+				"DSC010000000008","DSC010000000009","DSC010000000010","DSC010000000011","DSC010000000012","DSC010000000013","DSC010000000014","DSC010000000015",
+				"DSC010000000016","DSC010000000017","DSC010000000018","DSC010000000019","DSC010000000020","DSC010000000050","MLD010000000001","PS3S1P120190323",
+				"PSWS10000000001","PSWS10000000002","PSWS10000000003","PSWS10000000004","PSWS10000000005","PSWS10000000006","PSWS10000000007","PSWS10000000008",
+				"PSWS10000000009","PSWS10000000010","PSWS10000000011","PSWS10000000012","PSWS10000000013","PSWS10000000014","PSWS1DIN0000001","PSWS20000000001",
+				"PSWS20000000002","PSWS20000000003","PSWS20000000003","PSWS20000000004","PSWS20000000005","PSWS20000000006","PSWS20000000007","PSWS20000000008",
+				"PSWS20000000009","WTHUSB000000001","WTHUSB000000002"};
+		for(String value: others) {
+			Acls acldev= new Acls();
+			acldev.setUsername(value);
+			acldev.setTopic(value+"/#");
+			acldev.setRw(4);
+			iAclBrocker.saveAclsBrocker(acldev);
+			
+			Acls aclmntr= new Acls();
+			aclmntr.setUsername(value);
+			aclmntr.setTopic("MNTR/"+value);
+			aclmntr.setRw(2);
+			iAclBrocker.saveAclsBrocker(aclmntr);
+			
+			Acls aclmntrs= new Acls();
+			aclmntrs.setUsername(value);
+			aclmntrs.setTopic("MNTR/"+value+"/#");
+			aclmntrs.setRw(2);
+			iAclBrocker.saveAclsBrocker(aclmntrs);
+			
+			Acls acltele= new Acls();
+			acltele.setUsername(value);
+			acltele.setTopic("teleM/"+value);
+			acltele.setRw(2);
+			iAclBrocker.saveAclsBrocker(acltele);
+			
+			Acls aclrmgt= new Acls();
+			aclrmgt.setUsername(value);
+			aclrmgt.setTopic("RMgmt/"+value);
+			aclrmgt.setRw(1);
+			iAclBrocker.saveAclsBrocker(aclrmgt);
+			
+			Acls aclrmgtr= new Acls();
+			aclrmgtr.setUsername(value);
+			aclrmgtr.setTopic("RMgmt/"+value+"/#");
+			aclrmgtr.setRw(2);
+			iAclBrocker.saveAclsBrocker(aclrmgtr);
+		}
+		return "reprovisioning completed";
+	}
 }

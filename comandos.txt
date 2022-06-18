@@ -2,8 +2,8 @@ curl http://localhost:8099/userBrocker/create/leandrotestnuevo/mypassdetest
 
 
 Deviceconfig/request
-{ "mail":"leandroplay1448@gmail.com"
-"pwd":"cin"
+{ "mail":"leandroplay1448@gmail.com",
+"pwd":"cin",
 "NdvHATypDvid":"1-DSC01-empty"
 }
 
@@ -14,6 +14,7 @@ CREATE TABLE account (id serial PRIMARY KEY,username VARCHAR ( 50 ) NOT NULL,pas
 INSERT INTO account (id, username,password,super) VALUES(1,'lean','PBKDF2$sha512$100000$a4mOtKL5zlh7vQ2rn3HX5Q==$q94S/qhUO9cuHdPH5ku9NJ2LxH80ZqMBpoGP57FErgN7R3Mpl644+YHb6NVOWbyJlC4MVtSoYd035ARzqs+0rw==',1);
 
 CREATE TABLE acls (id serial PRIMARY KEY,username VARCHAR ( 50 ) NOT NULL,topic VARCHAR ( 150 ) NOT NULL,rw INT NOT NULL);
+INSERT INTO acls (id, username,topic,rw) VALUES(1,'mqttusr','#',4);
 INSERT INTO acls (id, username,topic,rw) VALUES(1,'lean','#',1);
 
 CREATE TABLE acl (id INTEGER PRIMARY KEY,	Name TEXT NOT NULL, topic TEXT NOT NULL,	rw INTEGER NOT NULL);
@@ -31,7 +32,7 @@ mosquitto_pub -h node02.myqtthub.com -i <client2-id> -u <username2> -P '<passwor
 
 
 
-INSERT INTO acls (id, username,topic,rw) VALUES(55,'mqttusr','#',4);
+INSERT INTO acls (id, username,topic,rw) VALUES(1,'mqttusr','#',4);
 
 insert into users (id,username,password_hash,is_admin) values (2,'mqttusr','PBKDF2$sha512$100000$Bo+31lFIh6alxD0DYlNB8Q==$d+mb8B1MLVi/KRpu1bG20EckomkE0rjIuasLG5UVyul+NpEROovphoiQINHoABbyLe0JzGe+7+Fwk+RV+ArHqw==',false);
 

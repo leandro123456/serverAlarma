@@ -21,6 +21,11 @@ import serverAlarma.Persistence.Model.UserAlarm;
 @Controller
 public class DeviceController {
 	
+	@GetMapping(value = "/")
+	public @ResponseBody String all(){
+		return "is live";
+	}
+	
 	@GetMapping(value = "coiaca/getusers")
 	public @ResponseBody List<UserAlarm> allusers(){
 		UserDAO userdao=new UserDAO();

@@ -21,12 +21,17 @@ import serverAlarma.util.Settings;
 public class MonitorComponent {
 	@Scheduled(fixedDelay = 60000, initialDelay = 1000) 
 	public void fixedDelaySch() {
+		String strDate=getTime();
+		System.out.println(strDate+ "  INFO	Monitoring Delay Loging" );
+		sendResponseMQTT(strDate,Settings.getInstance().getUserNameBroker(),Settings.getInstance().getPasswordBroker());
+		
+	}
+	
+	public static String getTime() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS"); 
 		Date now = new Date(); 
 		String strDate = sdf.format(now);
-		System.out.println("Fixed Delay scheduler: " + strDate);
-		sendResponseMQTT(strDate,Settings.getInstance().getUserNameBroker(),Settings.getInstance().getPasswordBroker());
-		
+		return strDate;
 	}
 	
 	
@@ -43,7 +48,7 @@ public class MonitorComponent {
 			options.setPassword(Settings.getInstance().getPasswordBroker().toCharArray());
 			publisher.connect(options);		
 			if ( !publisher.isConnected()) {
-				System.err.println("Fallo la conexion al enviar la RESPUETA - reconectando");
+				System.err.println(getTime()+ "  INFO	Fallo la conexion al enviar la RESPUETA - reconectando");
 				MqttConnect.getInstance().iniciar();
 			}
 			String topico="ServerAlarm/keepAlive";

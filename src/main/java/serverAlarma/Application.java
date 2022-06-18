@@ -9,7 +9,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import javassist.bytecode.Mnemonic;
 import serverAlarma.Controller.MqttConnect;
+import serverAlarma.Monitor.MonitorComponent;
 import serverAlarma.Persistence.Postgresql.JPA.Interface.IUserBrocker;
 
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
@@ -36,13 +38,15 @@ public class Application {
 		return args -> {
 			MqttClient client = MqttConnect.getInstance().getClient();
 			if(client !=null) {
-				System.out.println("esta conectada: "+ client.isConnected());
-				client.subscribe("Deviceconfig/#");
-				client.subscribe("homeassistant/#");
-				System.out.println("Me suscribi a todos los topicos de alta de usuarios");
+				System.out.println(MonitorComponent.getTime()+"  INFO	Start Proceduce Mqtt Connected: "+ client.isConnected());
+				if(client.isConnected()) {
+					client.subscribe("Deviceconfig/#");
+					client.subscribe("homeassistant/#");
+					System.out.println(MonitorComponent.getTime()+ "  INFO	Subscription Success to all Topics");
+				}
 			}
 			else
-				System.out.println("el cliente es NULO");		         
+				System.out.println(MonitorComponent.getTime()+ "  INFO	Client is NULL in start");		         
 		};
 	}
 }

@@ -29,6 +29,7 @@ import com.jcraft.jsch.Session;
 import serverAlarma.util.Settings;
 import serverAlarma.util.Utils;
 import serverAlarma.Configuration.HomeAssistanConfig;
+import serverAlarma.Monitor.MonitorComponent;
 import serverAlarma.Persistence.DAO.DeviceDAO;
 import serverAlarma.Persistence.DAO.PostgresDAO;
 import serverAlarma.Persistence.DAO.UserDAO;
@@ -49,7 +50,6 @@ public class MqttConnect implements MqttCallback{
 	
 	public static MqttConnect getInstance(){
 		if(mqttconnect==null){
-			System.out.println("mqttconnect instancia es null");
 			mqttconnect=new MqttConnect();
 		}
 		return mqttconnect;
@@ -66,14 +66,15 @@ public class MqttConnect implements MqttCallback{
 			options.setUserName(Settings.getInstance().getUserNameBroker());
 			options.setPassword(Settings.getInstance().getPasswordBroker().toCharArray());
 			if ( !publisher.isConnected()) {
-	           	System.out.println("MQTT-client no esta conectado");
+	           	System.out.println(MonitorComponent.getTime()+ "  INFO	MQTT-client no esta conectado- Retry");
 	           	publisher.connect(options);
 	           	this.client =publisher;
 	           	sendServerStatus(client, "online");
-	           	if(!publisher.isConnected())
+	           	if(!publisher.isConnected()) {
 	           		iniciar();
+	           	}
 	        }else {
-	        	System.out.println("MQTT-client conecto a :" + publisher);
+	        	System.out.println("MQTT-client Connected to: " + publisher);
 	        	this.client =publisher;
 	        }
 		} catch (Exception e) {
@@ -87,17 +88,14 @@ public class MqttConnect implements MqttCallback{
 		message.setQos(0);
 		message.setRetained(true);
 		client.publish("ServerAlarm/Status", message);
-		System.out.println("Se envio el mensaje del estado del Server Alarma");
+		System.out.println(MonitorComponent.getTime()+ "  INFO	Se envio el mensaje del estado del Server Alarma");
 	}
 	
 	
 	@Override
 	public void connectionLost(Throwable arg0) {
-		Date fecha = new Date();
-		System.out.println("ERROR  SE PERDIO LA CONECCION: "+ fecha.toString());
+		System.out.println(MonitorComponent.getTime()+ "  INFO	ERROR  SE PERDIO LA CONECCION");
 		iniciar();
-		
-		
 	}
 
 	@Override
