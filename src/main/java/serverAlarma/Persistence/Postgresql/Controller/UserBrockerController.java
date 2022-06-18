@@ -41,6 +41,7 @@ public class UserBrockerController {
 	
 	@GetMapping("/userbrocker/getall")
 	public List<Users> getallUsers(){
+		
 		return iUserBrocker.getAllUserBrocker();
 	}
 	
