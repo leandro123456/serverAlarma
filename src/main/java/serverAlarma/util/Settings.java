@@ -26,13 +26,13 @@ public class Settings {
 
 
     public void load() {
-//    	properties = new Properties();
+    	properties = new Properties();
         try {
-//        	properties.load(new FileInputStream("/var/cdash/properties/cdash.properties"));
-            this.uriBroker = "tcp://161.35.254.222:1883";//properties.getProperty("uriBroker");//
-            this.userNameBroker = "cDashSVR";//properties.getProperty("userNameBroker");//
-            this.passwordBroker = "av1vEDacfGwXc5";//properties.getProperty("passwordBroker");//
-            this.myUrl= "http://salty-wave-32309.herokuapp.com";//properties.getProperty("myServerProvisioningURL");//
+        	properties.load(new FileInputStream("/var/cdash/properties/cdash.properties"));
+            this.uriBroker = properties.getProperty("uriBroker");//"tcp://161.35.254.222:1883";//
+            this.userNameBroker = properties.getProperty("userNameBroker");//"cDashSVR";//
+            this.passwordBroker = properties.getProperty("passwordBroker");//"av1vEDacfGwXc5";//
+            this.myUrl= properties.getProperty("myServerProvisioningURL");//"http://salty-wave-32309.herokuapp.com";//
         } catch (Exception e) {
         	System.out.println("Error... no se puede leer el archivo de propiedades");
             e.printStackTrace();

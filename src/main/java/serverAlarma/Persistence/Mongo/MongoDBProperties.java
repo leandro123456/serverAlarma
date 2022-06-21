@@ -10,7 +10,7 @@ import com.mongodb.ServerAddress;
 
 abstract class MongoDBProperties {
 	
-	private static final String HOST_MONGODB = "cdash.space";//"localhost";//
+	private static final String HOST_MONGODB = "10.136.18.162";//"localhost";//
 	private static final Integer PORT_MONGODB = 27017;
 	private static final Boolean USE_SSL_MONGODB = false;
 	

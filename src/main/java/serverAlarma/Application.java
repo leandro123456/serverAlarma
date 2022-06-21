@@ -26,12 +26,12 @@ public class Application {
         SpringApplication.run(Application.class, args);
     }
     
-//	@Bean
-//	public WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> setConfiguration() {
-//		return factory -> {
-//			factory.setPort(80);
-//		};
-//    }
+	@Bean
+	public WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> setConfiguration() {
+		return factory -> {
+			factory.setPort(8099);
+		};
+    }
     
 	@Bean
 	public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
