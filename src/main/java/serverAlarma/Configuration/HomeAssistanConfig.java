@@ -18,11 +18,16 @@ import serverAlarma.util.Settings;
 public class HomeAssistanConfig {
 	
 	public static void addConfig(String topic, MqttMessage message) {
-		UserDAO userdao= new UserDAO();
-		//Reenviar la configuracion a HA Cloud
-		UserAlarm user=userdao.retrieveDeviceId(ObtainDeviceId(topic, message));
-		String userID=user.getUserID();
 		try {
+			UserDAO userdao= new UserDAO();
+			//Reenviar la configuracion a HA Cloud
+			UserAlarm user=userdao.retrieveDeviceId(ObtainDeviceId(topic, message));
+			String userID="";
+			if (user!=null)
+				userID=user.getUserID();
+			else
+				return;
+		
 			String publisherId = UUID.randomUUID().toString();
 			IMqttClient publisher = new MqttClient(Settings.getInstance().getUriBroker(),publisherId,new MemoryPersistence());
 			MqttConnectOptions options = new MqttConnectOptions();
@@ -48,22 +53,26 @@ public class HomeAssistanConfig {
 	}
 
 	private static String ObtainDeviceId(String topic, MqttMessage message) {
-		String msj= new String(message.getPayload());
-		JSONObject json= new JSONObject(msj);
-		String deviceid= json.get("~").toString();
-		if(!topic.contains(deviceid)) {
-			System.out.println("TOPICO para filtrado: "+ topic);
-			deviceid=topic.replace("/config", "");
-			deviceid=deviceid.replace("homeassistant/", "");
-			String[]  val= deviceid.split("/");
-			deviceid=val[1];
-			if(deviceid.contains("/")) {
-				val= deviceid.split("/");
+		try {
+			String msj= new String(message.getPayload());
+			JSONObject json= new JSONObject(msj);
+			String deviceid= json.get("~").toString();
+			if(!topic.contains(deviceid)) {
+				System.out.println("TOPICO para filtrado: "+ topic);
+				deviceid=topic.replace("/config", "");
+				deviceid=deviceid.replace("homeassistant/", "");
+				String[]  val= deviceid.split("/");
 				deviceid=val[1];
+				if(deviceid.contains("/")) {
+					val= deviceid.split("/");
+					deviceid=val[1];
+				}
 			}
+			System.out.println("DeviceId obtenido: "+ deviceid);
+			return deviceid;
+		} catch (Exception e) {
+			return null;
 		}
-		System.out.println("DeviceId obtenido: "+ deviceid);
-		return deviceid;
 	}
 
 }

@@ -205,8 +205,7 @@ public class MqttConnect implements MqttCallback{
 				}
 			}
 			else if (topic.contains("homeassistant")) {
-				//TODO
-				//	HomeAssistanConfig.addConfig(topic,message);
+				HomeAssistanConfig.addConfig(topic,message);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
