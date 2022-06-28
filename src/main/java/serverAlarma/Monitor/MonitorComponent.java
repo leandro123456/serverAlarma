@@ -35,7 +35,6 @@ public class MonitorComponent {
 	}
 	
 	
-	@SuppressWarnings("resource")
 	public void sendResponseMQTT(String date, String mqttUser, String mqttPass) {
 		try {
 			String publisherId = UUID.randomUUID().toString();
@@ -60,6 +59,8 @@ public class MonitorComponent {
 			message.setRetained(true);
 			publisher.publish(topico,message); 
 			TimeUnit.SECONDS.sleep(3);
+			publisher.disconnect();
+			publisher.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

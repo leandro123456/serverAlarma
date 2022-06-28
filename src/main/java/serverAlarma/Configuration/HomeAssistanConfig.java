@@ -41,6 +41,7 @@ public class HomeAssistanConfig {
 			message.setRetained(false);
 			publisher.publish(topic,message);
 			publisher.disconnect();
+			publisher.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

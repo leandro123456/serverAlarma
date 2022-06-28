@@ -88,6 +88,8 @@ public class MqttConnect implements MqttCallback{
 		message.setQos(0);
 		message.setRetained(true);
 		client.publish("ServerAlarm/Status", message);
+//		client.disconnect();
+//		client.close();
 		System.out.println(MonitorComponent.getTime()+ "  INFO	Se envio el mensaje del estado del Server Alarma");
 	}
 	
@@ -203,7 +205,8 @@ public class MqttConnect implements MqttCallback{
 				}
 			}
 			else if (topic.contains("homeassistant")) {
-				HomeAssistanConfig.addConfig(topic,message);
+				//TODO
+				//	HomeAssistanConfig.addConfig(topic,message);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -244,6 +247,8 @@ public class MqttConnect implements MqttCallback{
 					msg.setRetained(false);
 					publisher.publish(topico,msg); 
 					TimeUnit.SECONDS.sleep(3);
+					publisher.disconnect();
+					publisher.close();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
