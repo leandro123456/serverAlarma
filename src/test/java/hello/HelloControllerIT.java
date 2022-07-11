@@ -19,10 +19,6 @@ import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
 import serverAlarma.Controller.MailController;
-import serverAlarma.Persistence.DAO.PostgresDAO;
-import serverAlarma.Persistence.DAO.UserDAO;
-import serverAlarma.Persistence.Model.PostgresID;
-import serverAlarma.Persistence.Model.UserAlarm;
 import serverAlarma.util.Utils;
 
 
@@ -32,22 +28,6 @@ public class HelloControllerIT {
 	public void testCreateHashPassword() {
 		System.out.println(Utils.hashPassword("sapo"));
 	}
-	
-	//@Test
-	public void testobtainID() {
-		PostgresDAO psqldao= new PostgresDAO();
-		PostgresID psql= new PostgresID();
-		psql.setIdpotgres(10);
-		psqldao.create(psql);
-	}
-	
-//	@Test
-	public void testSearchUserbyDeviceID() {
-		UserDAO userdao= new UserDAO();
-		UserAlarm user = userdao.retrieveDeviceId("DSC010000000137");
-		System.out.println(user.getEmail());
-	}
-	
 	
 //	@Test
 	public void generarRandomLongitud9(){

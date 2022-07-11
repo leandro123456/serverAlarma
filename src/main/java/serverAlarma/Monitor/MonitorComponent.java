@@ -19,7 +19,7 @@ import serverAlarma.util.Settings;
 
 @Component
 public class MonitorComponent {
-	@Scheduled(fixedDelay = 60000, initialDelay = 1000) 
+	@Scheduled(fixedDelay = 300000, initialDelay = 1000) 
 	public void fixedDelaySch() {
 		String strDate=getTime();
 		System.out.println(strDate+ "  INFO	Monitoring Delay Loging" );

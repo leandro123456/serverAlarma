@@ -9,25 +9,23 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.json.JSONObject;
+import org.springframework.web.client.RestTemplate;
 
 import serverAlarma.Controller.MqttConnect;
-import serverAlarma.Persistence.DAO.UserDAO;
-import serverAlarma.Persistence.Model.UserAlarm;
+import serverAlarma.Persistence.Postgresql.Model.UserAlarm;
 import serverAlarma.util.Settings;
 
 public class HomeAssistanConfig {
 	
 	public static void addConfig(String topic, MqttMessage message) {
 		try {
-			UserDAO userdao= new UserDAO();
-			//Reenviar la configuracion a HA Cloud
-			UserAlarm user=userdao.retrieveDeviceId(ObtainDeviceId(topic, message));
-			String userID="";
-			if (user!=null)
-				userID=user.getUserID();
-			else
+			RestTemplate restTemplate = new RestTemplate();
+			String devId=ObtainDeviceId(topic, message);
+			String userID = restTemplate.getForObject(Settings.getInstance().getMyUrl()+"/useralarm/findbydevid/"+devId , String.class);
+			if (userID==null || userID.isEmpty() || userID.equals("")) {
+				System.out.println("DEviceid UNKNOW For the USERID"+ devId);
 				return;
-		
+			}
 			String publisherId = UUID.randomUUID().toString();
 			IMqttClient publisher = new MqttClient(Settings.getInstance().getUriBroker(),publisherId,new MemoryPersistence());
 			MqttConnectOptions options = new MqttConnectOptions();

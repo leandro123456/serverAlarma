@@ -6,9 +6,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.util.stream.Collectors;
 
 import org.springframework.web.client.RestTemplate;
@@ -17,13 +14,8 @@ import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 
-import serverAlarma.Persistence.DAO.DeviceDAO;
-import serverAlarma.Persistence.DAO.PostgresDAO;
-import serverAlarma.Persistence.Model.Device;
-import serverAlarma.Persistence.Model.PostgresID;
-
 public class Utils {
-	
+
 	public static String generateRandomHexa(){
 		String[] letters = {"0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"};
 		String color = "";
@@ -106,26 +98,6 @@ public class Utils {
 			} 
 			System.out.println("Restart Service done");
 		}
-	}
-
-	public static String ObtainDeviceID(String type) {
-		DeviceDAO devicedao= new DeviceDAO();
-		Device device=devicedao.retrieveFirstbyType(type);
-		if(device==null) {
-			device=new Device();
-			device.setName("primero");
-			device.setSerialnumber(type+"0000000100");
-			device.setUserowner(type+"usuario-inicial");
-			device.setType(type);
-			devicedao.create(device);
-		}
-		Integer number= Integer.parseInt(device.getSerialnumber().replace(type, ""));
-		String newDeviceId= (number+1)+"";
-		newDeviceId=device.getSerialnumber().substring(0,device.getSerialnumber().length()-newDeviceId.length())+newDeviceId;
-		System.out.println("New Device id: "+newDeviceId);
-		device.setSerialnumber(newDeviceId);
-		devicedao.update(device);
-		return newDeviceId;
 	}
 
 	public static void CreateUserInMosquittoDB(String newDeviceId, String mqttUser, String mqttPass) {

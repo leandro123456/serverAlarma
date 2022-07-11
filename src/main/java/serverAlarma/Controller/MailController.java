@@ -128,7 +128,7 @@ public class MailController {
 			message.setFrom(new InternetAddress("COIACA"));
 			message.setRecipients(Message.RecipientType.TO,
 					InternetAddress.parse(destino));
-			message.setSubject("Coiaca Device Registration: "+ deviceid);
+			message.setSubject("Coiaca Device Registration "+ deviceid);
 			message.setText(Mensaje,"ISO-8859-1","html");
 			Transport transport = session.getTransport("smtp");
 			transport.connect("smtp.gmail.com","support@qliq.com.ar", "TkblMT~e6q|");
