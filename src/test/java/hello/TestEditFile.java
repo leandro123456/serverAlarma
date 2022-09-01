@@ -3,11 +3,39 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
-
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
 
+import com.google.gson.Gson;
+
+import net.minidev.json.JSONObject;
+import serverAlarma.Persistence.Postgresql.Model.DeviceParticular;
+
 public class TestEditFile {
+	
+	@Test
+	public void parseListtoArrayLIst() {
+		String listMap= "[DSC0100000010,DSADSADASDSA]";
+		listMap=listMap.replaceAll("[^a-zA-Z0-9-,]", "");
+		String[] listArray= listMap.split(",");
+		List<DeviceParticular> listResult=new ArrayList<DeviceParticular>();
+		for(int i=0; i<listArray.length; i++) {
+			System.out.println(listArray[i]);
+
+			//DeviceParticular device= idevice.findByDevid(listArray[i]);
+//			if(device!=null) {
+//				listResult.add(device);
+//			}
+//			Gson gson = new Gson();
+//			String jsonList =  gson.toJson(listResult);
+//			System.out.println(jsonList);
+			
+		}
+		
+		String resp="";
+	}
 	
 	//@Test
 	public void testPasarBoolean() {

@@ -18,5 +18,7 @@ public interface IDeviceParticular {
 	
 	public List<DeviceParticular> findAllByOwner(String owner);
 	
-	public DeviceParticular findByDeviceid(String deviceid);
+	public DeviceParticular findByDevid(String deviceid);
+	
+	public DeviceParticular findAllByDeviceId(String deviceid);
 }

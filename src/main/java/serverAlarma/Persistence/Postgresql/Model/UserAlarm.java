@@ -26,5 +26,9 @@ public class UserAlarm {
 	private Integer ingresosSinLogin;
 	private String mqttUser;
 	private String mqttPassword;
-	private String userID;
+	private String mqttUserID;
+	private String mqttUrl;
+	private String mqttPort;
+	private Boolean mqttIsSecure;
+	private String devices;
 }

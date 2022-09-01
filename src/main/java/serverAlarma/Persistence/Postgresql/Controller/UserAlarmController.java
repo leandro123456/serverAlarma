@@ -1,12 +1,11 @@
 package serverAlarma.Persistence.Postgresql.Controller;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 
 import serverAlarma.Controller.MailController;
 import serverAlarma.Persistence.Postgresql.JPA.Interface.IDeviceParticular;
+import serverAlarma.Persistence.Postgresql.JPA.Interface.IDeviceStatus;
 import serverAlarma.Persistence.Postgresql.JPA.Interface.IUserAlarm;
 import serverAlarma.Persistence.Postgresql.Model.DeviceParticular;
 import serverAlarma.Persistence.Postgresql.Model.UserAlarm;
@@ -34,11 +34,55 @@ public class UserAlarmController {
 	@Autowired
 	private IDeviceParticular idevice;
 	
-	@GetMapping("/useralarm/getall")
+	@GetMapping("/usermanagement/getall")
 	public List<UserAlarm> getAllUsers(){
 		return iuserAlarm.getAllUserAlarm();
 	}
 	
+	@GetMapping("/usermanagment/getfirst")
+	public UserAlarm getFirstUsers(){
+		return iuserAlarm.getAllUserAlarm().get(0);
+	}
+	
+	@PostMapping("/usermanagment/getone")
+	public UserAlarm getOneUsers(@RequestBody String info){
+		return iuserAlarm.findUserAlarmByEmail(info);
+	}
+	
+	@GetMapping("/test/userauth/create")
+	public String createUserv2(){
+		RestTemplate restTemplate = new RestTemplate();
+		try {
+			UserAlarm user= new UserAlarm();
+			user.setEmail("leandroplay@gmail.com");
+			user.setPassCuenta("cin");
+			Date date=new Date();
+			user.setFechaCreacion(date.toString());
+			String userID=Utils.generateRandomHexa();
+			user.setMqttUserID(userID);
+			String newDeviceId = restTemplate.getForObject(Settings.getInstance().getMyUrl()+"/device/deviceid/"+"DSC01", String.class);
+			
+			String mqttUser=Utils.generateRandomHexa();
+			user.setMqttUser("mqttusr");
+			String mqttPass=Utils.generateRandomHexaPass();
+			user.setMqttPassword("mqttpwd");
+			user.setMqttIsSecure(false);
+			user.setMqttPort("1883");
+			user.setMqttUrl("remota");
+					
+			List<String> IdDevices= new ArrayList<>();
+			IdDevices.add("DSC0100000010");
+			IdDevices.add("mydeviceID");
+			IdDevices.add(newDeviceId);
+			user.setDevices(IdDevices.toString());
+			iuserAlarm.saveUserAlarm(user);
+			
+			return "success";
+		} catch (Exception e) {
+			e.printStackTrace();
+			return e.getMessage();
+		}
+	}
 	
 	@PostMapping(value="/useralarm/register")
 	public String RegisterDeviceRoot(@RequestBody String jsoninfo) {
@@ -75,11 +119,11 @@ public class UserAlarmController {
 			Date date=new Date();
 			user.setFechaCreacion(date.toString());
 			String userID=Utils.generateRandomHexa();
-			user.setUserID(userID);
+			user.setMqttUserID(userID);
 			String newDeviceId = restTemplate.getForObject(Settings.getInstance().getMyUrl()+"/device/deviceid/"+type, String.class);
 			DeviceParticular dev= new DeviceParticular();
-			dev.setDeviceid(newDeviceId);
-			dev.setType(type);
+			dev.setDevid(newDeviceId);
+			dev.setTipo(type);
 			dev.setUserowner(email);
 			idevice.saveDeviceParticular(dev);
 			
@@ -115,14 +159,14 @@ public class UserAlarmController {
 					System.out.println("entro en el nuevo dispositivo");
 					String newDeviceId = restTemplate.getForObject(Settings.getInstance().getMyUrl()+"/device/deviceid/"+type, String.class);
 					DeviceParticular dev= new DeviceParticular();
-					dev.setDeviceid(newDeviceId);
-					dev.setType(type);
+					dev.setDevid(newDeviceId);
+					dev.setTipo(type);
 					dev.setUserowner(email);
 					idevice.saveDeviceParticular(dev);
 					
 					//enviar mensaje por mail
 					try {
-						MailController.enviarNotificacion(user.getUserID(),newDeviceId,user.getMqttUser(),user.getMqttPassword(),email);
+						MailController.enviarNotificacion(user.getMqttUserID(),newDeviceId,user.getMqttUser(),user.getMqttPassword(),email);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -175,13 +219,13 @@ public class UserAlarmController {
 	
 	@GetMapping("/useralarm/findbydevid/{devid}")
 	public String RegisterDevice(@PathVariable("devid") String devid) {
-		DeviceParticular dev= idevice.findByDeviceid(devid);
+		DeviceParticular dev= idevice.findByDevid(devid);
 		if(dev==null)
 			return "failed device dont exist";
 		UserAlarm user= iuserAlarm.findUserAlarmByEmail(dev.getUserowner());
 		if(user==null)
 			return null;
-		String result= user.getUserID();
+		String result= user.getMqttUserID();
 		return result;
 	}
 }

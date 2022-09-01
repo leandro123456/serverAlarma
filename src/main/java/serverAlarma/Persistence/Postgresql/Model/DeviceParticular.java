@@ -1,9 +1,13 @@
 package serverAlarma.Persistence.Postgresql.Model;
 
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+
+import org.json.JSONObject;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +18,24 @@ public class DeviceParticular {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private long id;
-	private String deviceid;
-	private String userowner;
-	private String type;
+	private String  devid;
+	private String  tipo;
+	private String  userowner;
+	private String  usershared;
+	private String  armedAway;
+	private String  armedNite;
+	private String  disarm;
+	private String  topicSignal;
+	private String  topicStatus;
+	private String  topicTrouble;
+	private String  armedHome;
+	private String  topicComands;
+	private String  topicActPartition;
+	private String  topicMsg;
+	private String  activeOn;
+	private String  activeOff;
+	private String deviceName;
+	private int activeZones;
+	private String topicZones;
+		
 }

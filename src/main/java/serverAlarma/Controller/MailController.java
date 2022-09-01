@@ -125,7 +125,11 @@ public class MailController {
 		});
 		MimeMessage message = new MimeMessage(session);
 		try {
-			message.setFrom(new InternetAddress("COIACA"));
+			message.setFrom(new InternetAddress("support@coiaca.com"));
+			message.setReplyTo(new javax.mail.Address[]
+					{
+						    new javax.mail.internet.InternetAddress("support@coiaca.com")
+						});
 			message.setRecipients(Message.RecipientType.TO,
 					InternetAddress.parse(destino));
 			message.setSubject("Coiaca Device Registration "+ deviceid);
@@ -136,7 +140,7 @@ public class MailController {
 	        transport.close();
 			System.out.println("Su mensaje se envio correctamente");
 
-		} catch (MessagingException e) {
+		} catch (Exception e) {
 			System.out.println("fallo el envio del mensaje");
 			throw new RuntimeException(e);
 		}

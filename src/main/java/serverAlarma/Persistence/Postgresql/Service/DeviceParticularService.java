@@ -53,8 +53,14 @@ public class DeviceParticularService implements IDeviceParticular{
 	}
 
 	@Override
-	public DeviceParticular findByDeviceid(String deviceid) {
-		DeviceParticular dev= devRepo.findByDeviceid(deviceid);
+	public DeviceParticular findByDevid(String deviceid) {
+		DeviceParticular dev= devRepo.findByDevid(deviceid);
+		return dev;
+	}
+
+	@Override
+	public DeviceParticular findAllByDeviceId(String deviceid) {
+		DeviceParticular dev= devRepo.findAllByDeviceId(deviceid);
 		return dev;
 	}
 	

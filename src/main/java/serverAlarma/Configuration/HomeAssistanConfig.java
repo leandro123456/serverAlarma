@@ -43,6 +43,9 @@ public class HomeAssistanConfig {
 			message.setQos(0);
 			message.setRetained(false);
 			publisher.publish(topic,message);
+			
+			//TODO aca necesito que se envie la resuesta a homeassistant para que se blanquee el topico
+			
 			publisher.disconnect();
 			publisher.close();
 		} catch (Exception e) {

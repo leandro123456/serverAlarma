@@ -10,20 +10,51 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import serverAlarma.Persistence.Postgresql.Controller.UserBrockerController;
+import serverAlarma.Persistence.Postgresql.JPA.Interface.IDeviceParticular;
 import serverAlarma.Persistence.Postgresql.JPA.Interface.IUserBrocker;
+import serverAlarma.Persistence.Postgresql.Model.DeviceParticular;
 import serverAlarma.Persistence.Postgresql.Model.Users;
 import serverAlarma.util.Utils;
 
+//@ExtendWith(SpringExtension.class)
+@DataJpaTest
 public class TestPostgres {
 
 	@Autowired
 	IUserBrocker iUserBrocker;
+	
+	@Autowired
+	IDeviceParticular idevice;
+	
+	//@Test
+	public void testCreateDevice() {
+		try {
+			DeviceParticular dev= new DeviceParticular();
+			dev.setDevid("mydeviceID");
+			dev.setTipo("TETS");
+			dev.setUserowner("maildelOwner");
+			List<String> usershared=new ArrayList<>();
+			usershared.add("jose");
+			usershared.add("pedro");
+			idevice.saveDeviceParticular(dev);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	//@Test
 	public void testCreateUserByInterface() {

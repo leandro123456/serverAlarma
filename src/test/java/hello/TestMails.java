@@ -23,7 +23,7 @@ import serverAlarma.Controller.MailController;
 
 public class TestMails {
 	
-	//@Test
+	@Test
 	public void sendMail() {
 		String userID="userIDvalue";
 		String newDeviceId="deviceIDVALUE";

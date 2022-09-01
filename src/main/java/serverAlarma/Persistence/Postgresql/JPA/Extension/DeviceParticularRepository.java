@@ -14,11 +14,14 @@ public interface DeviceParticularRepository extends JpaRepository<DeviceParticul
 
 	DeviceParticular findByUserowner(String userowner);
 	
-	DeviceParticular findByDeviceid(String deviceid);
+	DeviceParticular findByDevid(String devid);
 	
-	@Query(value="SELECT owner FROM device_particular WHERE deviceid IN (:devid)",  nativeQuery=true)
+	@Query(value="SELECT owner FROM device_particular WHERE devid IN (:devid)",  nativeQuery=true)
 	String findByDeviceId(@Param("devid") String devid);
 	
 	@Query(value="SELECT * FROM device_particular WHERE userowner =:userowner",  nativeQuery=true)
 	List<DeviceParticular> findAllByUserOwner(@Param("userowner") String owner);
+	
+	@Query(value="SELECT * FROM device_particular WHERE devid IN (:devid)",  nativeQuery=true)
+	DeviceParticular findAllByDeviceId(@Param("devid") String devid);
 }
