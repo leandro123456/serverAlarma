@@ -16,7 +16,7 @@ public class UserAlarm {
 	private long id;
 	private String firstname;
 	private String lastname;
-	private String password;
+	private String password; //se usa para el prier login
 	private String email;
 	private String passCuenta;
 	private Boolean cuenta_iniciada;

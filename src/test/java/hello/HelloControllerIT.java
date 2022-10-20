@@ -1,8 +1,17 @@
 package hello;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 
@@ -27,6 +36,25 @@ public class HelloControllerIT {
 	//@Test
 	public void testCreateHashPassword() {
 		System.out.println(Utils.hashPassword("sapo"));
+	}
+	
+	@Test
+	public void testCreateDocument() {
+		System.out.println("inicio");
+		
+		try {
+			String file ="/home/steven/Downloads/templateCardProfile.txt";
+			System.out.println("file");
+		     BufferedReader reader = new BufferedReader(new FileReader(file));
+		       
+		     String currentLine = reader.readLine();
+		     System.out.println("text: "+currentLine);
+		     reader.close();
+		     System.out.println("clouse");
+		}  
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 //	@Test

@@ -6,13 +6,27 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.DatatypeConverter;
 
 import org.springframework.web.client.RestTemplate;
 
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
+
+import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import serverAlarma.Persistence.Postgresql.Model.DeviceParticular;
 
 public class Utils {
 
@@ -100,16 +114,16 @@ public class Utils {
 		}
 	}
 
-	public static void CreateUserInMosquittoDB(String newDeviceId, String mqttUser, String mqttPass) {
+	public static void CreateUserInMosquittoDB(String mqttUser, String mqttPass,String rootDirection) {
 		RestTemplate restTemplate = new RestTemplate();
 		//createUser
 		restTemplate.getForEntity(Settings.getInstance().getMyUrl()+"/userbrocker/create/"+mqttUser + "/"+mqttPass, String.class);
 		System.out.println("Created USER successfully");
 		//create Acl
-		restTemplate.getForEntity(Settings.getInstance().getMyUrl()+"/aclbrocker/createfirst/"+mqttUser, String.class);
+		restTemplate.getForEntity(Settings.getInstance().getMyUrl()+"/aclbrocker/createfirst/"+mqttUser+"/"+rootDirection, String.class);
 		System.out.println("ACL first created successfully");
-		restTemplate.getForEntity(Settings.getInstance().getMyUrl()+"/aclbrocker/update/"+mqttUser+"/"+newDeviceId, String.class);
-		System.out.println("ACL created successfully");
+		//restTemplate.getForEntity(Settings.getInstance().getMyUrl()+"/aclbrocker/update/"+mqttUser+"/"+rootDirection, String.class);
+		//System.out.println("ACL created successfully");
 	}
 	
 	public static void UpdateTopicsToUser(String mqttUser  , String newDeviceId) {
@@ -163,5 +177,54 @@ public class Utils {
 				channel.disconnect();
 		}
 		return null;
+	}
+
+	public static String CreateToken(String id,String user) {
+		try {
+			SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
+			long nowMillis = System.currentTimeMillis();
+			Date now = new Date(nowMillis);
+			byte[] apiKeySecretBytes = DatatypeConverter.parseBase64Binary("Yn2kjibddFAWtnPJ2AFlL8WXmohJMCvigQggaEypa5E=");
+			Key signingKey = new SecretKeySpec(apiKeySecretBytes, signatureAlgorithm.getJcaName());
+			Map<String,Object> map= new HashMap<>();
+			map.put("email", user);
+			JwtBuilder builder = Jwts.builder().setId(Utils.generateRandomHexa()+"_"+nowMillis+"_"+id)
+					.setClaims(map)
+					.setIssuedAt(now)
+					.setSubject("login_user")
+					.setIssuer("coiacaSmart")
+					.signWith(signatureAlgorithm, signingKey);
+
+			long expMillis = nowMillis + new Long("10000000");
+			Date exp = new Date(expMillis);
+			builder.setExpiration(exp);
+			String token=builder.compact();
+			return token;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static List<String> ObtaintUserByDeviceID(DeviceParticular device) {
+		List<String> result= new ArrayList<>();
+		if(!device.getUserowner().equals(""))
+			result.add(device.getUserowner());
+		try {
+			if(!device.getUsershared().equals("") && !device.getUsershared().equals("[]")) {
+				String userShared= device.getUsershared().replace("[", "");
+				userShared=userShared.replace("]", "");
+				String[]userparse= userShared.split(",");
+				if(userparse.length>0) {
+					for(int i=0; i>userparse.length;i++) {
+						if(!userparse[i].equals(""))
+							result.add(userparse[i]);
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 }

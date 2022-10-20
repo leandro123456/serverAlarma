@@ -3,6 +3,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +16,7 @@ import serverAlarma.Persistence.Postgresql.Model.DeviceParticular;
 
 public class TestEditFile {
 	
-	@Test
+	//@Test
 	public void parseListtoArrayLIst() {
 		String listMap= "[DSC0100000010,DSADSADASDSA]";
 		listMap=listMap.replaceAll("[^a-zA-Z0-9-,]", "");
@@ -60,7 +61,7 @@ public class TestEditFile {
 		String isdpAid = "A0000005591010FFFFFFFF8900001000";
 		String iccid = "8942306000041201241";
 		String msisdn = "423651234321";
-		String FileName = "/home/steven/Desktop/templateINI.ini";
+		String FileName = "/home/steven/Downloads/templateCardProfile.txt";//"/home/steven/Desktop/templateINI.ini";
 		BufferedReader br = null;
 		BufferedWriter bw = null;
 
@@ -69,6 +70,7 @@ public class TestEditFile {
 			bw = new BufferedWriter(new FileWriter("/home/steven/Desktop/" + eid + ".ini"));
 			String line;
 			while ((line = br.readLine()) != null) {
+				System.out.println("entro");
 				if (line.contains("EID"))
 					line = line.replace("EID", eid + "\n");
 				else if (line.contains("ISDPAID"))
@@ -80,6 +82,47 @@ public class TestEditFile {
 				else
 					line = line + "\n";
 				bw.write(line);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (br != null)
+					br.close();
+				if (bw != null)
+					bw.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	@Test
+	public void testEditFileToInsert() {
+		Integer id = 1040;
+		String iccid = "89423060000";
+		Integer val=80000040;
+		String state = "RELEASED";
+		String FileName = "/home/steven/Downloads/templateCardProfile.txt";//"/home/steven/Desktop/templateINI.ini";
+		BufferedReader br = null;
+		BufferedWriter bw = null;
+
+		try {
+			br = new BufferedReader(new FileReader(FileName));
+			bw = new BufferedWriter(new FileWriter("/home/steven/Desktop/" + id + ".txt"));
+			String currentline;
+			while ((currentline = br.readLine()) != null) {
+				for(int i=0; i<30;i++) {
+					String line2=currentline;
+					System.out.println("entro");
+					if (line2.contains("IDVALUE"))
+						line2 = line2.replace("IDVALUE", (id+i)+"");
+					if (line2.contains("MERCAVALUE22"))
+						line2 = line2.replace("MERCAVALUE22", iccid+(val+i));
+					if (line2.contains("STATEVALUE"))
+						line2 = line2.replace("STATEVALUE", state);
+					bw.write(line2);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

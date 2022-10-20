@@ -37,7 +37,7 @@ public class Application {
 				System.out.println(MonitorComponent.getTime()+"  INFO	Start Proceduce Mqtt Connected: "+ client.isConnected());
 				if(client.isConnected()) {
 //					client.subscribe("Deviceconfig/#");
-					client.subscribe("homeassistant/#");
+					client.subscribe("#");
 					System.out.println(MonitorComponent.getTime()+ "  INFO	Subscription Success to all Topics");
 				}
 			}

@@ -14,8 +14,7 @@ public class EncryptorPassword {
 	/*				Encrypt of password					*/
     public static String encrypt(String message) throws Exception {
         MessageDigest md = MessageDigest.getInstance("md5");
-        byte[] digestOfPassword = md.digest("ABGELDPGOQWZX"
-                        .getBytes("utf-8"));
+        byte[] digestOfPassword = md.digest("ABGELDPGOQWZX".getBytes("utf-8"));
         byte[] keyBytes = Arrays.copyOf(digestOfPassword, 24);
         for (int j = 0, k = 16; j < 8;) {
                 keyBytes[k++] = keyBytes[j++];
@@ -35,8 +34,7 @@ public class EncryptorPassword {
     /*				Decrypt of password					*/
     public static String decrypt(String message) throws Exception {
         MessageDigest md = MessageDigest.getInstance("md5");
-        byte[] digestOfPassword = md.digest("ABGELDPGOQWZX"
-                        .getBytes("utf-8"));
+        byte[] digestOfPassword = md.digest("ABGELDPGOQWZX".getBytes("utf-8"));
         byte[] keyBytes = Arrays.copyOf(digestOfPassword, 24);
         for (int j = 0, k = 16; j < 8;) {
                 keyBytes[k++] = keyBytes[j++];

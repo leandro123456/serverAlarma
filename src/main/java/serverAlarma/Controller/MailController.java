@@ -13,37 +13,43 @@ import javax.mail.internet.MimeMessage;
 
 
 public class MailController {
+	final static String getCabecera() {
+		return  "<HTML><head>\n" + 
+				"  <style>\n" + 
+				"  table {\n" + 
+				"    width:100%;\n" + 
+				"  }\n" + 
+				"  table, th, td {\n" + 
+				"    border: 1px solid black;\n" + 
+				"    border-collapse: collapse;\n" + 
+				"  }\n" + 
+				"  th, td {\n" + 
+				"    padding: 15px;\n" + 
+				"    text-align: left;\n" + 
+				"  }\n" + 
+				"  tr:nth-child(even) {\n" + 
+				"    background-color: #eee;\n" + 
+				"  }\n" + 
+				"  tr:nth-child(odd) {\n" + 
+				"   background-color: #fff;\n" + 
+				"  }\n" + 
+				"  th {\n" + 
+				"    background-color: black;\n" + 
+				"    color: white;\n" + 
+				"  }\n" + 
+				"  </style>\n" + 
+				"  </head><BODY><br/> <br/>";
+	}
 
 	public static void enviarNotificacion(String userOwner,String newDeviceId,String mqttUser,String mqttPAss,String email) {
+		//armado del mail
+		if(newDeviceId==null) {
+			MensajeCreacionDeUsuarioViaApp(userOwner,mqttUser,mqttPAss,email, getCabecera());
+			return;
+		}
 		try {
-			//armado del mail
-			String cabecera = "<HTML><head>\n" + 
-					"  <style>\n" + 
-					"  table {\n" + 
-					"    width:100%;\n" + 
-					"  }\n" + 
-					"  table, th, td {\n" + 
-					"    border: 1px solid black;\n" + 
-					"    border-collapse: collapse;\n" + 
-					"  }\n" + 
-					"  th, td {\n" + 
-					"    padding: 15px;\n" + 
-					"    text-align: left;\n" + 
-					"  }\n" + 
-					"  tr:nth-child(even) {\n" + 
-					"    background-color: #eee;\n" + 
-					"  }\n" + 
-					"  tr:nth-child(odd) {\n" + 
-					"   background-color: #fff;\n" + 
-					"  }\n" + 
-					"  th {\n" + 
-					"    background-color: black;\n" + 
-					"    color: white;\n" + 
-					"  }\n" + 
-					"  </style>\n" + 
-					"  </head><BODY><br/> <br/>";
+			
 			String tablaprevia="";
-			//ultimas 1o zonas
 				tablaprevia=tablaprevia+"<tr>";
 				tablaprevia=tablaprevia+"<td>"+"DeviceID"+"</td>";
 				tablaprevia=tablaprevia+"<td>"+newDeviceId+"</td>";
@@ -101,7 +107,7 @@ public class MailController {
 			
 			
 			String pie = "<br/> <br/></BODY></HTML>";
-			String formulario = String.format("%s%s%s%s", cabecera, body, "<br/> <br/>", pie);
+			String formulario = String.format("%s%s%s%s", getCabecera(), body, "<br/> <br/>", pie);
 			sendMail(formulario, email,newDeviceId);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -110,6 +116,77 @@ public class MailController {
 	
 	
 	
+	private static void MensajeCreacionDeUsuarioViaApp(String userOwner, String mqttUser, String mqttPAss,
+			String email, String cabecera) {
+		String tablaprevia="";
+		tablaprevia=tablaprevia+"<tr>";
+		tablaprevia=tablaprevia+"<td>"+"User root prefix"+"</td>";
+		tablaprevia=tablaprevia+"<td>"+userOwner+"</td>";
+		tablaprevia=tablaprevia+"</tr>";
+		tablaprevia=tablaprevia+"<tr>";
+		tablaprevia=tablaprevia+"<td>"+"Coiaca MQTT broker username"+"</td>";
+		tablaprevia=tablaprevia+"<td>"+mqttUser+"</td>";
+		tablaprevia=tablaprevia+"</tr>";
+		tablaprevia=tablaprevia+"<tr>";
+		tablaprevia=tablaprevia+"<td>"+"Coiaca MQTT broker Password"+"</td>";
+		tablaprevia=tablaprevia+"<td>"+mqttPAss+"</td>";
+		tablaprevia=tablaprevia+"</tr>";
+
+	
+	String body= "<p>Hello,</p>"//<br/>
+			+ "<p>Thanks for registering your Coiaca App. You will find below credentials and information that will allow you to use all features and services.</p> "
+			+ "<table >\n" + 
+			"  <tr>\n" + 
+			"    <th>Parameter</th>\n" + 
+			"    <th>Value</th> \n" + 
+			"  </tr>\n" + tablaprevia+ 
+			"</table>"
+			+ "<br/>"//;
+			//+ "<p> </p>"
+			+ "<h3>What these parameters are and why do you need them.</h3>"
+	+"<p><b>Coiaca MQTT broker username and password: </b>These credentials are the ones your device uses "
+	+ "to connect to Coiaca MQTT broker and also can be used with any other a"
+	+ "pplication that you may want to use to control your device with, using Coiaca MQTT broker.</p>"+
+	"<p>If you don't want to use Coiaca MQTT broker, you must replace these credentials with the other broker's. "
+	+ "And in that case, you will also need to configure the broker url and port accordingly.</p>"
+	+"<p><b>User root Prefix: </b>This parameter is used for the Coiaca Aplication.</p>"
+	+"<p>The device will use \"homeassistant\" as MQTT Discovery Topic Prefix. If you are using your own MQTT broker and you didn`t "
+	+"change the Home Assistant MQTT configuration, you don't need to use this parameter, because \"homeassistant\" is the default one.</p>"
+	+"<p>You can find more information in the "
+	+"<a href='https://coiaca.com/index.php/documentation/'> documentation section</a>"
+	+" on "
+	+"<a href='https://coiaca.com/'>Coiaca.com</a>."
+	+"</p>"
+	+"<p>If you have any questions or need further assistance, please contact Coiaca customer support:"
+	+"<a href='mailto:support@coiaca.com'> support@coiaca.com</a>."
+	+"</p>"
+	+"<p>Best Regards<br/>Coiaca Support</p>";
+	
+	String pie = "<br/> <br/></BODY></HTML>";
+	String formulario = String.format("%s%s%s%s", cabecera, body, "<br/> <br/>", pie);
+	sendMail(formulario, email,null);
+	}
+	
+	
+	public static void MensajeBievenidaApp(String email, String codigo) {
+		
+	String body= "<p>Hello,</p>"//<br/>
+	+ "<p>Thanks for registering your Coiaca App. Below you will find the access code for your first login</p> "
+	+ "<br/> <br/>"
+	+"<h3>"+codigo+"</h3>"
+	+ "<br/> <br/>"
+	+"<p>If you have any questions or need further assistance, please contact Coiaca customer support:"
+	+"<a href='mailto:support@coiaca.com'> support@coiaca.com</a>."
+	+"</p>"
+	+"<p>Best Regards<br/>Coiaca Support</p>";
+	
+	String pie = "<br/> <br/></BODY></HTML>";
+	String formulario = String.format("%s%s%s%s", getCabecera(), body, "<br/> <br/>", pie);
+	sendMail(formulario, email,null);
+	}
+
+
+
 	public static void sendMail(String Mensaje,String destino,String deviceid) {
 		Properties props = new Properties();
 		props.put("mail.smtp.host", "smtp.gmail.com");
@@ -132,7 +209,10 @@ public class MailController {
 						});
 			message.setRecipients(Message.RecipientType.TO,
 					InternetAddress.parse(destino));
-			message.setSubject("Coiaca Device Registration "+ deviceid);
+			if(deviceid!=null)
+				message.setSubject("Coiaca Device Registration "+ deviceid);
+			else
+				message.setSubject("Coiaca Registration");
 			message.setText(Mensaje,"ISO-8859-1","html");
 			Transport transport = session.getTransport("smtp");
 			transport.connect("smtp.gmail.com","support@qliq.com.ar", "TkblMT~e6q|");
@@ -149,33 +229,6 @@ public class MailController {
 
 
 	public static void FinalZonasDeAlarmaNotificar() {
-
-		//ENVIAR MAIL	CON UNA TABLA
-		String cabecera = "<HTML><head>\n" + 
-				"  <style>\n" + 
-				"  table {\n" + 
-				"    width:100%;\n" + 
-				"  }\n" + 
-				"  table, th, td {\n" + 
-				"    border: 1px solid black;\n" + 
-				"    border-collapse: collapse;\n" + 
-				"  }\n" + 
-				"  th, td {\n" + 
-				"    padding: 15px;\n" + 
-				"    text-align: left;\n" + 
-				"  }\n" + 
-				"  tr:nth-child(even) {\n" + 
-				"    background-color: #eee;\n" + 
-				"  }\n" + 
-				"  tr:nth-child(odd) {\n" + 
-				"   background-color: #fff;\n" + 
-				"  }\n" + 
-				"  th {\n" + 
-				"    background-color: black;\n" + 
-				"    color: white;\n" + 
-				"  }\n" + 
-				"  </style>\n" + 
-				"  </head><BODY><br/> <br/>";
 		String tablaprevia="";
 		for(int i=0; i<10; i++) {
 			tablaprevia=tablaprevia+"<tr>";
@@ -195,7 +248,7 @@ public class MailController {
 				"</table>"
 				+ "<br/>";
 		String pie = "<br/> <br/> <footer><p> Dash</p></footer></BODY></HTML>";
-		String formulario = String.format("%s%s%s%s", cabecera, body, "<br/> <br/>", pie);
+		String formulario = String.format("%s%s%s%s", getCabecera(), body, "<br/> <br/>", pie);
 		MailController.sendMail(formulario, "leandrogabrielguzman@gmail.com","");
 
 	}

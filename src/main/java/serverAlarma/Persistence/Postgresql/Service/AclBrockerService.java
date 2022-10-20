@@ -38,4 +38,10 @@ public class AclBrockerService  implements IAclBrocker{
 		return user;
 	}
 
+	@Override
+	public Acls findByUsername(String username) {
+		Acls acl= aclRepository.findByUsername(username);
+		return acl;
+	}
+
 }

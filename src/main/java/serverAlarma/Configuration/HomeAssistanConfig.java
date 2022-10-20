@@ -23,7 +23,7 @@ public class HomeAssistanConfig {
 			String devId=ObtainDeviceId(topic, message);
 			String userID = restTemplate.getForObject(Settings.getInstance().getMyUrl()+"/useralarm/findbydevid/"+devId , String.class);
 			if (userID==null || userID.isEmpty() || userID.equals("")) {
-				System.out.println("DEviceid UNKNOW For the USERID"+ devId);
+				//System.out.println("DEviceid UNKNOW For the USERID"+ devId);
 				return;
 			}
 			String publisherId = UUID.randomUUID().toString();
@@ -69,7 +69,7 @@ public class HomeAssistanConfig {
 					deviceid=val[1];
 				}
 			}
-			System.out.println("DeviceId obtenido: "+ deviceid);
+			//System.out.println("DeviceId obtenido: "+ deviceid);
 			return deviceid;
 		} catch (Exception e) {
 			return null;

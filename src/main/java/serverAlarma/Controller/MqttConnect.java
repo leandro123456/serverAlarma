@@ -16,6 +16,7 @@ import org.json.JSONObject;
 
 import serverAlarma.util.Settings;
 import serverAlarma.Configuration.HomeAssistanConfig;
+import serverAlarma.MQTTAnalisis.MQTTAnalisis;
 import serverAlarma.Monitor.MonitorComponent;
 
 public class MqttConnect implements MqttCallback{
@@ -87,6 +88,10 @@ public class MqttConnect implements MqttCallback{
 			if (topic.contains("homeassistant")) {
 				//TODO
 				HomeAssistanConfig.addConfig(topic,message);
+			}
+			else {
+			//	System.out.println("llego a mqtt analisis");
+				MQTTAnalisis.VerifyMsg(topic, message);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
