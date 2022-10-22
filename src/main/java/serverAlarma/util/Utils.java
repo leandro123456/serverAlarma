@@ -211,7 +211,7 @@ public class Utils {
 		if(!device.getUserowner().equals(""))
 			result.add(device.getUserowner());
 		try {
-			if(!device.getUsershared().equals("") && !device.getUsershared().equals("[]")) {
+			if(device.getUsershared()!=null && !device.getUsershared().equals("") && !device.getUsershared().equals("[]")) {
 				String userShared= device.getUsershared().replace("[", "");
 				userShared=userShared.replace("]", "");
 				String[]userparse= userShared.split(",");
@@ -223,7 +223,8 @@ public class Utils {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
+			System.err.println("error in ObtaintUserByDeviceID");
 		}
 		return result;
 	}

@@ -15,7 +15,8 @@ public class Settings {
 	private String brokerIp;
 	private Boolean brokerIsSecure;
 	private String firebaseUrl;
-	
+	private Boolean isTLSEnable;
+	private Integer serverPort;
 
 
 	private Settings() {
@@ -42,6 +43,8 @@ public class Settings {
             this.passwordBroker = properties.getProperty("passwordBroker");//"av1vEDacfGwXc5";//
             this.myUrl= properties.getProperty("myServerProvisioningURL");//"http://salty-wave-32309.herokuapp.com";//
             this.firebaseUrl= properties.getProperty("firebaseUrl");
+            this.isTLSEnable= Boolean.parseBoolean(properties.getProperty("isTLSEnable"));
+            this.serverPort= Integer.parseInt(properties.getProperty("serverPort"));
         } catch (Exception e) {
         	System.out.println("Error... no se puede leer el archivo de propiedades");
             e.printStackTrace();
@@ -64,6 +67,10 @@ public class Settings {
 		return passwordBroker;
 	}
 
+	public Boolean getIsTLSEnable() {
+		return isTLSEnable;
+	}
+
 	public String getMyUrl() {
 		return myUrl;
 	}
@@ -74,6 +81,10 @@ public class Settings {
 
 	public String getBrokerIp() {
 		return brokerIp;
+	}
+
+	public Integer getServerPort() {
+		return serverPort;
 	}
 
 	public Boolean getBrokerIsSecure() {

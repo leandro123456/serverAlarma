@@ -29,6 +29,7 @@ import serverAlarma.Persistence.Postgresql.JPA.Interface.IDeviceParticular;
 import serverAlarma.Persistence.Postgresql.JPA.Interface.IDeviceStatus;
 import serverAlarma.Persistence.Postgresql.JPA.Interface.IUserAlarm;
 import serverAlarma.Persistence.Postgresql.Model.DeviceParticular;
+import serverAlarma.Persistence.Postgresql.Model.DeviceStatus;
 import serverAlarma.Persistence.Postgresql.Model.UserAlarm;
 import serverAlarma.util.EncryptorPassword;
 import serverAlarma.util.Settings;
@@ -44,6 +45,10 @@ public class UserAlarmController {
 	@Autowired
 	private IDeviceParticular idevice;
 	
+	@Autowired
+	private IDeviceStatus idevicestatus;
+	
+
 	@GetMapping("/usermanagement/getall")
 	public List<UserAlarm> getAllUsers(){
 		return iuserAlarm.getAllUserAlarm();
@@ -240,14 +245,14 @@ public class UserAlarmController {
 			String mqttPass=result.get("mqttPass");
 			
 			//Create Device
-			DeviceParticular dev= new DeviceParticular();
-			dev.setDevid(newDeviceId);
-			dev.setTipo(type);
-			dev.setUserowner(email);
-			idevice.saveDeviceParticular(dev);
+			CreateDevice(userID,newDeviceId,email,type);
 			
 			//enviar mensaje por mail
-			try { MailController.enviarNotificacion(userID,newDeviceId,mqttUser,mqttPass,email);
+			try { 
+				MailController.enviarNotificacion(userID,newDeviceId,mqttUser,mqttPass,email);
+				//enviar codigo por mail
+				//String code=result.get("initcode");
+				//MailController.MensajeBievenidaApp(email,code);
 			} catch (Exception e) {e.printStackTrace();}
 			
 			//Create MQTT user					
@@ -268,11 +273,8 @@ public class UserAlarmController {
 				if(devid==null || devid.contains("empty")) {
 					System.out.println("entro en el nuevo dispositivo");
 					String newDeviceId = restTemplate.getForObject(Settings.getInstance().getMyUrl()+"/device/deviceid/"+type, String.class);
-					DeviceParticular dev= new DeviceParticular();
-					dev.setDevid(newDeviceId);
-					dev.setTipo(type);
-					dev.setUserowner(email);
-					idevice.saveDeviceParticular(dev);
+					String userID= user.getMqttUserID();
+					CreateDevice(userID,newDeviceId,email,type);
 					
 					//enviar mensaje por mail
 					try {
@@ -282,12 +284,13 @@ public class UserAlarmController {
 					}
 				
 					//Update MQTT user
-					Utils.UpdateTopicsToUser(user.getMqttUser(),newDeviceId);
+					//Utils.UpdateTopicsToUser(user.getMqttUser(),newDeviceId);
 					
 					JSONObject json= new JSONObject();
 					json.put("devid", newDeviceId);
 					json.put("mqttusr", user.getMqttUser());
 					json.put("mqttpwd", user.getMqttPassword());
+					json.put("rootinfo", userID);
 					return json.toString();
 				}else {
 				    JSONObject jsonRequestvalue = new JSONObject();
@@ -328,6 +331,62 @@ public class UserAlarmController {
 	}
 	
 	
+	private void CreateDevice(String userID, String deviceId, String email,String type) {
+		DeviceParticular dev= new DeviceParticular();
+		dev.setDevid(deviceId);
+		dev.setTipo(type);
+		dev.setUserowner(email);
+		if(type.equals("DSC01")) {
+			dev.setArmedAway("A");
+			dev.setArmedHome("S");
+			dev.setArmedNite("N");
+			dev.setDisarm("D");
+			String firsPart=userID+"/"+deviceId;
+			dev.setTopicSignal(firsPart+"/keepAlive");
+			dev.setTopicStatus(firsPart+"/Status");
+			dev.setTopicTrouble(firsPart+"/Trouble");
+			dev.setTopicComands(firsPart+"/cmd");
+			dev.setTopicActPartition(firsPart+"activePartition");
+			dev.setTopicMsg(firsPart+"/MNTR");
+			dev.setTopicZones(firsPart+"/Zone");
+			dev.setDeviceName("DSC01");
+			CreateDeviceStatus(deviceId, type);
+		}
+		idevice.saveDeviceParticular(dev);
+		
+	}
+
+	private void CreateDeviceStatus(String deviceId, String type) {
+		DeviceStatus devSatus= new DeviceStatus();
+		devSatus.setActPartition(1);
+		devSatus.setDevid(deviceId);
+		devSatus.setShowZones(0);
+		devSatus.setStatus("offline");
+		devSatus.setTipo(type);
+		devSatus.setTrouble(0);
+		JSONObject tmpjs= new JSONObject();
+		tmpjs.put("Status", "offline");
+		tmpjs.put("MNTR-DetailPartition1","Partition ready");
+		tmpjs.put("activePartition", "1");
+		tmpjs.put("Partition1", "disarmed");
+		tmpjs.put("Partition2", "disarmed");
+		tmpjs.put("Partition3", "disarmed");
+		tmpjs.put("Partition4", "disarmed");
+		tmpjs.put("Partition5", "disarmed");
+		tmpjs.put("Partition6", "disarmed");
+		tmpjs.put("Partition7", "disarmed");
+		tmpjs.put("Partition8", "disarmed");
+		JSONObject intJson= new JSONObject();
+		intJson.put("\"deviceID\"", "\""+deviceId+"\"");
+		intJson.put("\"DSC\"",1);
+		intJson.put("\"MQTT\"", 1);
+		intJson.put("\"dBm\"", -68);
+		tmpjs.accumulate("keepAlive", intJson);
+		devSatus.setImportData(tmpjs.toString());
+		idevicestatus.saveDeviceStatus(devSatus);
+		
+	}
+
 	@PostMapping(value="/useralarm/registerapp")
 	public String RegisterDeviceRootApp(@RequestBody String jsoninfo) {
 		System.out.println("llego register app: "+ jsoninfo);
@@ -360,7 +419,7 @@ public class UserAlarmController {
 						
 						//enviar codigo por mail
 						try {
-							MailController.MensajeBievenidaApp( email,code);
+							MailController.MensajeBievenidaApp(email,code);
 						} catch (Exception e) {	e.printStackTrace();}
 						
 						//Create Response
@@ -449,15 +508,14 @@ public class UserAlarmController {
 			user.setDevices(devices);
 		}
 		if(isApp) {
-			user.setCuenta_iniciada(false);
-			String initCode=Utils.generateRandomHexa();
-			user.setPassword(initCode);
-			result.put("initcode", initCode);
-			user.setMqttIsSecure(false);
 			user.setMqttUrl(Settings.getInstance().getBrokerUrl());
 			user.setMqttPort(Settings.getInstance().getBrokerIp());
-			user.setMqttIsSecure(Settings.getInstance().getBrokerIsSecure());
 		}
+		user.setCuenta_iniciada(false);
+		String initCode=Utils.generateRandomHexa();
+		user.setPassword(initCode);
+		result.put("initcode", initCode);
+		user.setMqttIsSecure(Settings.getInstance().getBrokerIsSecure());
 		iuserAlarm.saveUserAlarm(user);
 		
 		return result;

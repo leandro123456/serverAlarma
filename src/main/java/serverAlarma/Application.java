@@ -10,6 +10,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 import serverAlarma.Controller.MqttConnect;
 import serverAlarma.Monitor.MonitorComponent;
+import serverAlarma.util.Settings;
+
+import org.springframework.boot.web.server.Ssl;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
 
@@ -25,7 +28,16 @@ public class Application {
 	@Bean
 	public WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> setConfiguration() {
 		return factory -> {
-			factory.setPort(8099);
+			factory.setPort(Settings.getInstance().getServerPort());
+			if(Settings.getInstance().getIsTLSEnable()) {
+			Ssl ssl = new Ssl();
+	    	//ssl.setKeyStore("/home/steven/Desktop/repo/serverAlarma/keystore/local/certserver.p12"); //in local
+	    	ssl.setKeyStore("/var/cdash/bin/keystore/prod/certificateprod.p12"); //in production
+	    	ssl.setKeyStorePassword("root");
+	    	ssl.setKeyAlias("1");
+	    	ssl.setKeyStoreType("PKCS12");
+	    	factory.setSsl(ssl);
+			}
 		};
     }
     
