@@ -1,6 +1,5 @@
 package serverAlarma.MQTTAnalisis;
 
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
@@ -12,35 +11,39 @@ import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 
 import serverAlarma.Persistence.Postgresql.Model.DeviceParticular;
-import serverAlarma.Persistence.Postgresql.Model.UserAlarm;
-import serverAlarma.Persistence.Postgresql.Model.UserPhone;
+import serverAlarma.V1Analisis.V1UpdateDatabaseStatus;
+import serverAlarma.util.CommonRequest;
 import serverAlarma.util.Settings;
 import serverAlarma.util.Utils;
 
 public class MQTTAnalisis {
 
 	public static void VerifyMsg(String topic, MqttMessage message) {
-		String[]topico= topic.split("/");				
-		if(topico[1].contains("DSC01") && topico[2].contains("Partition") && !topico[2].contains("activePartition")) {
-			System.out.println("topico: "+ topico[1]);
-			String msg= new String(message.getPayload());
-			if(!msg.equals("pending")) {
-				DeviceParticular device= ObtainDeviceNameByDeviceID(topico[1]);
-				if(device!=null) {
-					List<String> users= Utils.ObtaintUserByDeviceID(device);
-					if(!users.isEmpty()) {
-						for(String userEmail: users) {
-							List<String> phones= ObtainPhonesByUser(userEmail);
-							if(phones!=null && !phones.isEmpty()) {
-								for(String phone :phones) {
-									sendFirebaseNotfication(phone,device.getDeviceName(),msg);
+		if(topic.startsWith("DSC01000")) {
+			V1UpdateDatabaseStatus.UpdateForTopic(topic,new String(message.getPayload()));
+		}else {
+			String[]topico= topic.split("/");				
+			if(topico[1].contains("DSC01") && topico[2].contains("Partition") && !topico[2].contains("activePartition")) {
+				System.out.println("topico: "+ topico[1]);
+				String msg= new String(message.getPayload());
+				if(!msg.equals("pending")) {
+					DeviceParticular device= CommonRequest.ObtainDeviceNameByDeviceID(topico[1]);
+					if(device!=null) {
+						List<String> users= Utils.ObtaintUserByDeviceID(device);
+						if(!users.isEmpty()) {
+							for(String userEmail: users) {
+								List<String> phones= ObtainPhonesByUser(userEmail);
+								if(phones!=null && !phones.isEmpty()) {
+									for(String phone :phones) {
+										sendFirebaseNotfication(phone,device.getDeviceName(),msg);
+									}
 								}
 							}
 						}
 					}
-				}
-				else {
-					System.out.println("device null");
+					else {
+						System.out.println("device null");
+					}
 				}
 			}
 		}
@@ -75,14 +78,6 @@ public class MQTTAnalisis {
 		}
 	}
 
-	private static DeviceParticular ObtainDeviceNameByDeviceID(String deviceId) {
-		try {
-			RestTemplate restTemplate = new RestTemplate();
-			DeviceParticular device = restTemplate.getForObject(Settings.getInstance().getMyUrl()+"/devicemanagement/findbydevid/"+deviceId , DeviceParticular.class);
-			return device;
-		} catch (Exception e) {
-			return null;
-		}
-	}
+
 
 }

@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
+import org.json.JSONObject;
 import org.springframework.web.client.RestTemplate;
 
 import com.jcraft.jsch.ChannelExec;
@@ -27,6 +28,7 @@ import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import serverAlarma.Persistence.Postgresql.Model.DeviceParticular;
+import serverAlarma.Persistence.Postgresql.Model.DeviceStatus;
 
 public class Utils {
 
@@ -227,5 +229,54 @@ public class Utils {
 			System.err.println("error in ObtaintUserByDeviceID");
 		}
 		return result;
+	}
+
+	public static String obtainTopicKey(String[] topicP) {
+		String topicKey="";
+		try {
+			for(int i=2; i<topicP.length; i++) { 
+				topicKey=topicKey+topicP[i]+"-";
+			}
+			if(topicKey.endsWith("-")) {
+				topicKey=topicKey.substring(0, topicKey.length()-1);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return topicKey;
+	}
+
+	public static DeviceStatus updateDeviceStatusValues(DeviceParticular devParticular, DeviceStatus devStatus,
+			String msg, String topic, String deviceId) {
+		if(topic.equals(devParticular.getTopicActPartition())) {
+			devStatus.setActPartition(Integer.parseInt(msg));
+		}
+		if(topic.equals(devParticular.getTopicTrouble())) {
+			devStatus.setTrouble(Integer.parseInt(msg));
+		}
+		if(topic.equals(devParticular.getTopicStatus())) {
+			devStatus.setStatus(msg);
+		}
+		String topicKey="";
+		if(deviceId!=null) {
+			topicKey=topic.replace(deviceId, "");
+			topicKey=topicKey.replaceAll("/", "");
+		}else {
+			String[] topicP=topic.split("/");
+			topicKey=Utils.obtainTopicKey(topicP);			
+		}
+		//System.out.println(new Date().toString() + " - topicKey: "+ topicKey);
+		
+		JSONObject jsonData = null;
+		if(devStatus.getImportData()!=null && !devStatus.getImportData().isEmpty()) {
+			jsonData=new JSONObject(devStatus.getImportData());
+			jsonData.remove(topicKey);
+			jsonData.put(topicKey, msg);
+		}else {
+			jsonData=new JSONObject();
+			jsonData.put(topicKey, msg);
+		}
+		devStatus.setImportData(jsonData.toString());
+		return devStatus;
 	}
 }

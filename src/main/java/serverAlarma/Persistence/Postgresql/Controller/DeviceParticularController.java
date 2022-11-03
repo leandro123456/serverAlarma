@@ -1,6 +1,7 @@
 package serverAlarma.Persistence.Postgresql.Controller;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.json.JSONObject;
@@ -22,6 +23,7 @@ import serverAlarma.Persistence.Postgresql.JPA.Interface.IUserAlarm;
 import serverAlarma.Persistence.Postgresql.Model.DeviceParticular;
 import serverAlarma.Persistence.Postgresql.Model.DeviceStatus;
 import serverAlarma.Persistence.Postgresql.Model.UserAlarm;
+import serverAlarma.util.Utils;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -37,7 +39,7 @@ public class DeviceParticularController {
 	
 	@GetMapping(value="/devicemanagement/findbydevid/{deviceId}")
 	public DeviceParticular deviceUpdate(@PathVariable String deviceId) {
-		System.out.println("deviceid "+ deviceId);
+		System.out.println(new Date().toString() +" - DeviceId: "+ deviceId);
 		DeviceParticular device=idevice.findAllByDeviceId(deviceId);
 		return device;
 	}
@@ -332,54 +334,47 @@ public class DeviceParticularController {
 		return result;
 		
 	}
-
+	
+	@PostMapping(value="/devicestatus/update")
+	public String deviceDeviceSatus(@RequestBody String jsoninfo) {
+		try {
+			JSONObject json = new JSONObject(jsoninfo);
+			String topic=json.getString("topico");
+			String msg= json.getString("payload");
+			String deviceId= json.getString("deviceid");
+			
+			DeviceStatus devStatus= idevicestatus.findByDevid(deviceId);
+			DeviceParticular devParticular= idevice.findAllByDeviceId(deviceId);
+			
+			if(devStatus!=null) {
+				devStatus= Utils.updateDeviceStatusValues(devParticular,devStatus,msg,topic,deviceId);
+				idevicestatus.saveDeviceStatus(devStatus);
+				return "success";
+			}
+			return "devStatus is null";
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
 
 	@PutMapping(value="/devicemanagement/updatedata")
 	public void deviceUpdateSatus(@RequestBody String jsoninfo) {
 		try {
-			//System.out.println("device INFO: "+ jsoninfo);	
 			JSONObject json = new JSONObject(jsoninfo);
 			String topic=json.getString("topico");
 			String msg= json.getString("payload");
 
 			String[] topicP=topic.split("/");
 			String deviceId=topicP[1];
-			//System.out.println(deviceId);
-			String topicKey="";
-			for(int i=2; i<topicP.length; i++) { 
-				topicKey=topicKey+topicP[i]+"-";
-			}
-			if(topicKey.endsWith("-")) {
-				topicKey=topicKey.substring(0, topicKey.length()-1);
-			}
-			//System.out.println("topic key: "+ topicKey);
+			String topicKey=Utils.obtainTopicKey(topicP);
 			DeviceParticular devParticular= idevice.findAllByDeviceId(deviceId);
 			if(devParticular!=null) {
 				DeviceStatus devStatus= idevicestatus.findByDevid(deviceId);
 				if(devStatus!=null) {
-					if(topic.equals(devParticular.getTopicActPartition())) {
-						devStatus.setActPartition(Integer.parseInt(msg));
-					}
-					if(topic.equals(devParticular.getTopicTrouble())) {
-						devStatus.setTrouble(Integer.parseInt(msg));
-					}
-					if(topic.equals(devParticular.getTopicStatus())) {
-						devStatus.setStatus(msg);
-					}
-
-					JSONObject jsonData = null;
-					if(devStatus.getImportData()!=null && !devStatus.getImportData().isEmpty()) {
-						jsonData=new JSONObject(devStatus.getImportData());
-						//if(jsonData.get(topicKey)!=null)
-							jsonData.remove(topicKey);
-						jsonData.put(topicKey, msg);
-					}else {
-						jsonData=new JSONObject();
-						jsonData.put(topicKey, msg);
-					}
-					devStatus.setImportData(jsonData.toString());
+					devStatus= Utils.updateDeviceStatusValues(devParticular,devStatus,msg,topic,null);
 					idevicestatus.saveDeviceStatus(devStatus);
-					//System.out.println("ya guardo");
 				}else {
 					DeviceStatus devSta= new DeviceStatus();
 					devSta.setDevid(deviceId);
