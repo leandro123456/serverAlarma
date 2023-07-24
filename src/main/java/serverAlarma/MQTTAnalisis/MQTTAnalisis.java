@@ -24,10 +24,11 @@ public class MQTTAnalisis {
 		}else {
 			String[]topico= topic.split("/");				
 			if(topico[1].contains("DSC01") && topico[2].contains("Partition") && !topico[2].contains("activePartition")) {
-				System.out.println("topico: "+ topico[1]);
+				//System.out.println("topico: "+ topico[1]);
 				String msg= new String(message.getPayload());
 				if(!msg.equals("pending")) {
-					DeviceParticular device= CommonRequest.ObtainDeviceNameByDeviceID(topico[1]);
+					CommonRequest commonRequest= new CommonRequest();
+					DeviceParticular device= commonRequest.ObtainDeviceNameByDeviceID(topico[1]);
 					if(device!=null) {
 						List<String> users= Utils.ObtaintUserByDeviceID(device);
 						if(!users.isEmpty()) {

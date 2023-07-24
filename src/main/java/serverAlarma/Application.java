@@ -8,6 +8,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import lombok.extern.slf4j.Slf4j;
 import serverAlarma.Controller.MqttConnect;
 import serverAlarma.Monitor.MonitorComponent;
 import serverAlarma.util.Settings;
@@ -16,7 +17,7 @@ import org.springframework.boot.web.server.Ssl;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
 
-
+@Slf4j
 @SpringBootApplication
 @EnableScheduling
 public class Application {
@@ -41,21 +42,21 @@ public class Application {
 		};
     }
     
-	@Bean
-	public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
-		return args -> {
-			MqttClient client = MqttConnect.getInstance().getClient();
-			if(client !=null) {
-				System.out.println(MonitorComponent.getTime()+"  INFO	Start Proceduce Mqtt Connected: "+ client.isConnected());
-				if(client.isConnected()) {
-//					client.subscribe("Deviceconfig/#");
-					client.subscribe("#");
-					System.out.println(MonitorComponent.getTime()+ "  INFO	Subscription Success to all Topics");
-				}
-			}
-			else
-				System.out.println(MonitorComponent.getTime()+ "  INFO	Client is NULL in start");		         
-		};
-	}
+//	@Bean
+//	public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
+//		return args -> {
+//			MqttClient client = MqttConnect.getInstance().getClient();
+//			if(client !=null) {
+//				log.info(MonitorComponent.getTime()+"  INFO	Start Proceduce Mqtt Connected: "+ client.isConnected());
+//				if(client.isConnected()) {
+////					client.subscribe("Deviceconfig/#");
+//					client.subscribe("#");
+//					log.info(MonitorComponent.getTime()+ "  INFO	Subscription Success to all Topics");
+//				}
+//			}
+//			else
+//				log.error(MonitorComponent.getTime()+ "  INFO	Client is NULL in start");		         
+//		};
+//	}
 }
 

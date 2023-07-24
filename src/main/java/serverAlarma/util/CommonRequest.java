@@ -1,20 +1,36 @@
 package serverAlarma.util;
 
+import java.security.Principal;
+
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import serverAlarma.Persistence.Postgresql.JPA.Extension.DeviceParticularRepository;
 import serverAlarma.Persistence.Postgresql.Model.DeviceParticular;
 
+@Service
+@Configurable
 public class CommonRequest {
-	public static DeviceParticular ObtainDeviceNameByDeviceID(String deviceId) {
+	
+	@Autowired
+	private DeviceParticularRepository idevice;
+		
+	public DeviceParticular ObtainDeviceNameByDeviceID(String deviceId) {
 		try {
-			RestTemplate restTemplate = new RestTemplate();
-			DeviceParticular device = restTemplate.getForObject(Settings.getInstance().getMyUrl()+"/devicemanagement/findbydevid/"+deviceId , DeviceParticular.class);
+			DeviceParticular device= idevice.findAllByDeviceId(deviceId);
+			System.out.println( "---- device: "+ device);
+			//RestTemplate restTemplate = new RestTemplate();
+			//DeviceParticular device = restTemplate.getForObject(Settings.getInstance().getMyUrl()+"/devicemanagement/findbydevid/"+deviceId , DeviceParticular.class);
 			return device;
 		} catch (Exception e) {
+			e.printStackTrace();
 			return null;
 		}
 	}

@@ -13,12 +13,13 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.json.JSONObject;
 
-
+import lombok.extern.slf4j.Slf4j;
 import serverAlarma.util.Settings;
 import serverAlarma.Configuration.HomeAssistanConfig;
 import serverAlarma.MQTTAnalisis.MQTTAnalisis;
 import serverAlarma.Monitor.MonitorComponent;
 
+@Slf4j
 public class MqttConnect implements MqttCallback{
 	private static MqttConnect mqttconnect= null;
 	private MqttClient client;
@@ -45,7 +46,7 @@ public class MqttConnect implements MqttCallback{
 			options.setUserName(Settings.getInstance().getUserNameBroker());
 			options.setPassword(Settings.getInstance().getPasswordBroker().toCharArray());
 			if ( !publisher.isConnected()) {
-	           	System.out.println(MonitorComponent.getTime()+ "  INFO	MQTT-client no esta conectado- Retry");
+	           	log.info(MonitorComponent.getTime()+ "  INFO	MQTT-client no esta conectado- Retry");
 	           	publisher.connect(options);
 	           	this.client =publisher;
 	           	sendServerStatus(client, "online");
@@ -53,11 +54,11 @@ public class MqttConnect implements MqttCallback{
 	           		iniciar();
 	           	}
 	        }else {
-	        	System.out.println("MQTT-client Connected to: " + publisher);
+	        	log.info("MQTT-client Connected to: " + publisher);
 	        	this.client =publisher;
 	        }
 		} catch (Exception e) {
-			System.out.println("mensaje: "+ e.getMessage());
+			log.info("mensaje: "+ e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -67,13 +68,13 @@ public class MqttConnect implements MqttCallback{
 		message.setQos(0);
 		message.setRetained(true);
 		client.publish("ServerAlarm/Status", message);
-		System.out.println(MonitorComponent.getTime()+ "  INFO	Se envio el mensaje del estado del Server Alarma");
+		log.info(MonitorComponent.getTime()+ "  INFO	Se envio el mensaje del estado del Server Alarma");
 	}
 	
 	
 	@Override
 	public void connectionLost(Throwable arg0) {
-		System.out.println(MonitorComponent.getTime()+ "  INFO	ERROR  SE PERDIO LA CONECCION");
+		log.error(MonitorComponent.getTime()+ "  INFO	ERROR  SE PERDIO LA CONECCION");
 		iniciar();
 	}
 
@@ -85,12 +86,12 @@ public class MqttConnect implements MqttCallback{
 	@Override
 	public void messageArrived(String topic, MqttMessage message) throws Exception {
 		try {
-			if (topic.contains("homeassistant")) {
+			if (topic.startsWith("homeassistant")) {
 				//TODO
 				HomeAssistanConfig.addConfig(topic,message);
 			}
 			else {
-			//	System.out.println("llego a mqtt analisis");
+			//	log.info("llego a mqtt analisis");
 				MQTTAnalisis.VerifyMsg(topic, message);
 			}
 		} catch (Exception e) {

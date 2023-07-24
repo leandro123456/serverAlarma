@@ -1,19 +1,21 @@
 package serverAlarma.Persistence.Postgresql.Model;
 
-import java.util.List;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
-import org.json.JSONObject;
+import org.hibernate.annotations.DynamicUpdate;
 
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter @Setter
+@Getter 
+@Setter
 @Entity
+@DynamicUpdate
+@Table(name = "device_particular", schema="public")
 public class DeviceParticular {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
